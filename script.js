@@ -1,42 +1,56 @@
-async function fetchCharacter() {
-  const name = document.getElementById("name").value.trim();
-  const resultBox = document.getElementById("result");
+async function fetchCharacters() {
 
-  if (!name) {
-    resultBox.innerHTML = "Please enter a character name.";
-    return;
-  }
+const resultBox=document.getElementById("result");
+resultBox.innerHTML="Loading...";
 
-  resultBox.innerHTML = "Loading...";
+let html="";
 
-  try {
-    const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
-    const data = await response.json();
+for(let i=1;i<=10;i++){
 
-    if (!response.ok) {
-      throw new Error(data.details || data.error || "Could not fetch character data.");
-    }
+const name=document.getElementById("ign"+i).value.trim();
 
-    const level = Number(data.level);
-    const percent = parseFloat(String(data.exp).replace("%", ""));
-    const table = expTable[level];
+if(!name) continue;
 
-    if (!table) {
-      resultBox.innerHTML = `Character found, but EXP table is missing level ${level}.`;
-      return;
-    }
+try{
 
-    const exactExp = table.acc + (table.next * (percent / 100));
-    const remaining = table.next * (1 - percent / 100);
+const response=await fetch(`/api/character?name=${encodeURIComponent(name)}`);
+const data=await response.json();
 
-    resultBox.innerHTML = `
-      Name: ${data.name}<br>
-      Level: ${level}<br>
-      EXP: ${data.exp}<br>
-      Exact EXP: ${Math.floor(exactExp).toLocaleString()}<br>
-      EXP Remaining: ${Math.ceil(remaining).toLocaleString()}
-    `;
-  } catch (error) {
-    resultBox.innerHTML = `Error: ${error.message}`;
-  }
+if(!response.ok){
+throw new Error(data.error||"Character not found");
+}
+
+const level=Number(data.level);
+const percent=parseFloat(String(data.exp).replace("%",""));
+
+const row=expTable[level];
+
+const exactExp=Math.floor(row.acc + row.next*(percent/100));
+const remaining=Math.ceil(row.next*(1-percent/100));
+
+html+=`
+<div class="card">
+<div><b>${data.name}</b></div>
+<div>Level: ${level}</div>
+<div>EXP: ${data.exp}</div>
+<div>Exact EXP: ${exactExp.toLocaleString()}</div>
+<div>EXP Remaining: ${remaining.toLocaleString()}</div>
+</div>
+`;
+
+}catch(err){
+
+html+=`
+<div class="card">
+<div><b>${name}</b></div>
+<div class="error">Error: ${err.message}</div>
+</div>
+`;
+
+}
+
+}
+
+resultBox.innerHTML=html || "No characters entered.";
+
 }
