@@ -87,3 +87,17 @@ button:hover {
   padding: 3px 6px;
   cursor: pointer;
 }
+
+.rate-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rate-box input[type="range"] {
+  width: 100%;
+}
+
+.rate-box input[type="number"] {
+  width: 100%;
+}
