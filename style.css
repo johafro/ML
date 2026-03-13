@@ -1,51 +1,54 @@
-body{
-font-family:Arial, sans-serif;
-background:#0d0d0d;
-color:white;
-padding:40px;
+body {
+  font-family: Arial, sans-serif;
+  background: #0d0d0d;
+  color: white;
+  padding: 30px;
+  margin: 0;
 }
 
-h1{
-margin-bottom:20px;
+h1 {
+  margin-bottom: 20px;
 }
 
-.exp-table{
-width:100%;
-border-collapse:collapse;
-margin-bottom:20px;
+.exp-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .exp-table th,
-.exp-table td{
-border:1px solid #333;
-padding:12px;
+.exp-table td {
+  border: 1px solid #333;
+  padding: 10px;
+  vertical-align: middle;
 }
 
-.exp-table th{
-background:#1a1a1a;
-text-align:left;
+.exp-table th {
+  background: #1a1a1a;
+  text-align: left;
 }
 
-input{
-width:100%;
-padding:8px;
-background:#1b1b1b;
-border:none;
-color:white;
+.exp-table td {
+  background: #111;
 }
 
-button{
-padding:12px 20px;
-font-size:16px;
-background:white;
-border:none;
-cursor:pointer;
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  background: #1b1b1b;
+  border: none;
+  color: white;
 }
 
-button:hover{
-background:#ddd;
+button {
+  padding: 8px 10px;
+  margin-right: 6px;
+  border: none;
+  background: white;
+  color: black;
+  cursor: pointer;
 }
 
-.error{
-color:#ff6b6b;
+button:hover {
+  background: #ddd;
 }
