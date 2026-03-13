@@ -208,3 +208,16 @@ function fetchEndAll() {
   }
 
 }
+
+function copyFee(row) {
+
+  const feeText = document.getElementById(`fee${row}`).innerText;
+
+  if (!feeText || feeText === "-") {
+    alert("No fee to copy yet.");
+    return;
+  }
+
+  navigator.clipboard.writeText(feeText);
+
+}
