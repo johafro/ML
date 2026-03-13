@@ -42,7 +42,6 @@ function updateRow(rowNum) {
   const rateInput = document.getElementById(`rate${rowNum}`);
 
   if (!gainedCell || !feeCell || !rateInput) {
-    console.error(`Missing gained/fee/rate element(s) for row ${rowNum}`);
     return;
   }
 
@@ -73,7 +72,6 @@ async function setStart(rowNum) {
   const percentEl = document.getElementById(`startPercent${rowNum}`);
 
   if (!ignInput || !levelEl || !expEl || !percentEl) {
-    console.error(`Missing start-side element(s) for row ${rowNum}`);
     return;
   }
 
@@ -84,7 +82,9 @@ async function setStart(rowNum) {
     return;
   }
 
+  levelEl.textContent = "-";
   expEl.textContent = "Loading...";
+  percentEl.textContent = "-";
 
   try {
     const result = await fetchExactExp(ign);
@@ -116,7 +116,6 @@ async function setEnd(rowNum) {
   const percentEl = document.getElementById(`endPercent${rowNum}`);
 
   if (!ignInput || !levelEl || !expEl || !percentEl) {
-    console.error(`Missing end-side element(s) for row ${rowNum}`);
     return;
   }
 
@@ -127,7 +126,9 @@ async function setEnd(rowNum) {
     return;
   }
 
+  levelEl.textContent = "-";
   expEl.textContent = "Loading...";
+  percentEl.textContent = "-";
 
   try {
     const result = await fetchExactExp(ign);
@@ -152,7 +153,7 @@ async function setEnd(rowNum) {
   }
 }
 
-for (let i = 1; i <= 10; i++) {
+for (let i = 1; i <= 2; i++) {
   const rateInput = document.getElementById(`rate${i}`);
   if (rateInput) {
     rateInput.addEventListener("input", () => updateRow(i));
