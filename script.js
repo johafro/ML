@@ -56,6 +56,37 @@ function maybeUpdateExactExp(prefix, rowNum) {
   }
 }
 
+function clampRate(value) {
+  const num = Number(value);
+  if (Number.isNaN(num)) return "";
+  return Math.max(0.1, Math.min(4, num));
+}
+
+function syncRateFromSlider(rowNum) {
+  const slider = document.getElementById(`rateSlider${rowNum}`);
+  const input = document.getElementById(`rate${rowNum}`);
+  if (!slider || !input) return;
+
+  input.value = slider.value;
+  updateRow(rowNum);
+}
+
+function syncRateFromInput(rowNum) {
+  const slider = document.getElementById(`rateSlider${rowNum}`);
+  const input = document.getElementById(`rate${rowNum}`);
+  if (!slider || !input) return;
+
+  const clamped = clampRate(input.value);
+  if (clamped === "") {
+    updateRow(rowNum);
+    return;
+  }
+
+  input.value = clamped;
+  slider.value = clamped;
+  updateRow(rowNum);
+}
+
 function updateRow(rowNum) {
   const startExpInput = document.getElementById(`startExp${rowNum}`);
   const endExpInput = document.getElementById(`endExp${rowNum}`);
@@ -157,6 +188,40 @@ async function setEnd(rowNum) {
   }
 }
 
+function fetchStartAll() {
+  for (let i = 1; i <= 2; i++) {
+    const ignInput = document.getElementById(`ign${i}`);
+    if (!ignInput) continue;
+
+    const ign = ignInput.value.trim();
+    if (ign !== "") {
+      setStart(i);
+    }
+  }
+}
+
+function fetchEndAll() {
+  for (let i = 1; i <= 2; i++) {
+    const ign = document.getElementById(`ign${i}`)?.value.trim();
+    if (ign) {
+      setEnd(i);
+    }
+  }
+}
+
+function copyFee(row) {
+  const feeElement = document.getElementById(`fee${row}`);
+  let feeText = feeElement.innerText;
+
+  if (!feeText || feeText === "-") {
+    alert("No fee to copy yet.");
+    return;
+  }
+
+  const cleanFee = feeText.replace(/,/g, "");
+  navigator.clipboard.writeText(cleanFee);
+}
+
 for (let i = 1; i <= 2; i++) {
   const startLevel = document.getElementById(`startLevel${i}`);
   const startPercent = document.getElementById(`startPercent${i}`);
@@ -167,6 +232,7 @@ for (let i = 1; i <= 2; i++) {
   const endExp = document.getElementById(`endExp${i}`);
 
   const rate = document.getElementById(`rate${i}`);
+  const rateSlider = document.getElementById(`rateSlider${i}`);
 
   startLevel?.addEventListener("input", () => {
     maybeUpdateExactExp("start", i);
@@ -192,55 +258,6 @@ for (let i = 1; i <= 2; i++) {
 
   endExp?.addEventListener("input", () => updateRow(i));
 
-  rate?.addEventListener("input", () => updateRow(i));
-}
-
-function fetchEndAll() {
-
-  for (let i = 1; i <= 2; i++) {
-
-    const ign = document.getElementById(`ign${i}`)?.value.trim();
-
-    if (ign) {
-      setEnd(i);
-    }
-
-  }
-
-}
-function copyFee(row) {
-
-  const feeElement = document.getElementById(`fee${row}`);
-  let feeText = feeElement.innerText;
-
-  if (!feeText || feeText === "-") {
-    alert("No fee to copy yet.");
-    return;
-  }
-
-  // remove commas
-  const cleanFee = feeText.replace(/,/g, "");
-
-  navigator.clipboard.writeText(cleanFee);
-
-}
-
-}
-
-function fetchStartAll() {
-
-  for (let i = 1; i <= 2; i++) {
-
-    const ignInput = document.getElementById(`ign${i}`);
-
-    if (!ignInput) continue;
-
-    const ign = ignInput.value.trim();
-
-    if (ign !== "") {
-      setStart(i);
-    }
-
-  }
-
+  rate?.addEventListener("input", () => syncRateFromInput(i));
+  rateSlider?.addEventListener("input", () => syncRateFromSlider(i));
 }
