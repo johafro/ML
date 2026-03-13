@@ -1,178 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
+async function fetchExactExp(name) {
+  const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
+  const data = await response.json();
 
-<head>
+  if (!response.ok) {
+    throw new Error(data.error || "Character not found");
+  }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  const level = Number(data.level);
+  const percent = parseFloat(String(data.exp).replace("%", "").trim());
+  const row = expTable[level];
 
-<title>Maple Leech Fee Tracker</title>
+  if (!row) {
+    throw new Error(`EXP table missing level ${level}`);
+  }
 
-<link rel="stylesheet" href="style.css">
+  const exactExp = Math.floor(row.acc + row.next * (percent / 100));
 
-</head>
+  return {
+    level,
+    percent,
+    exactExp
+  };
+}
 
-<body>
+function updateRow(rowNum) {
+  const startExpInput = document.getElementById(`startExp${rowNum}`);
+  const endExpInput = document.getElementById(`endExp${rowNum}`);
+  const rateInput = document.getElementById(`rate${rowNum}`);
+  const gainedCell = document.getElementById(`gained${rowNum}`);
+  const feeCell = document.getElementById(`fee${rowNum}`);
 
-<h1>Maple Leech Fee Tracker</h1>
+  if (!startExpInput || !endExpInput || !rateInput || !gainedCell || !feeCell) {
+    return;
+  }
 
-<table class="exp-table">
+  const startExp = Number(startExpInput.value || 0);
+  const endExp = Number(endExpInput.value || 0);
+  const rate = Number(rateInput.value || 0);
 
-<thead>
-<tr>
-<th>Character</th>
-<th>Start EXP</th>
-<th>End EXP</th>
-<th>EXP Gained</th>
-<th>Rate (EXP / meso)</th>
-<th>Fee (mesos)</th>
-<th>Actions</th>
-</tr>
-</thead>
+  if (startExp > 0 && endExp > 0) {
+    const gained = endExp - startExp;
+    gainedCell.textContent = gained.toLocaleString();
 
-<tbody>
+    if (rate > 0) {
+      const fee = gained / rate;
+      feeCell.textContent = Math.ceil(fee).toLocaleString();
+    } else {
+      feeCell.textContent = "-";
+    }
+  } else {
+    gainedCell.textContent = "-";
+    feeCell.textContent = "-";
+  }
+}
 
-<tr>
+async function setStart(rowNum) {
+  const ignInput = document.getElementById(`ign${rowNum}`);
+  const levelInput = document.getElementById(`startLevel${rowNum}`);
+  const expInput = document.getElementById(`startExp${rowNum}`);
+  const percentInput = document.getElementById(`startPercent${rowNum}`);
 
-<td>
-<input id="ign1" placeholder="Character 1">
-</td>
+  if (!ignInput || !levelInput || !expInput || !percentInput) {
+    alert(`Missing start fields for row ${rowNum}`);
+    return;
+  }
 
-<td>
+  const ign = ignInput.value.trim();
 
-<div class="exp-box">
+  if (!ign) {
+    alert("Enter IGN first");
+    return;
+  }
 
-<div>
-Level:
-<input id="startLevel1" type="number">
-</div>
+  expInput.value = "";
+  percentInput.value = "";
+  levelInput.value = "";
 
-<div>
-EXP:
-<input id="startExp1" type="number">
-</div>
+  try {
+    const result = await fetchExactExp(ign);
 
-<div>
-EXP %:
-<input id="startPercent1" type="number" step="0.01">
-</div>
+    levelInput.value = result.level;
+    expInput.value = result.exactExp;
+    percentInput.value = result.percent;
 
-</div>
+    updateRow(rowNum);
+  } catch (err) {
+    alert(err.message);
+  }
+}
 
-</td>
+async function setEnd(rowNum) {
+  const ignInput = document.getElementById(`ign${rowNum}`);
+  const levelInput = document.getElementById(`endLevel${rowNum}`);
+  const expInput = document.getElementById(`endExp${rowNum}`);
+  const percentInput = document.getElementById(`endPercent${rowNum}`);
 
-<td>
+  if (!ignInput || !levelInput || !expInput || !percentInput) {
+    alert(`Missing end fields for row ${rowNum}`);
+    return;
+  }
 
-<div class="exp-box">
+  const ign = ignInput.value.trim();
 
-<div>
-Level:
-<input id="endLevel1" type="number">
-</div>
+  if (!ign) {
+    alert("Enter IGN first");
+    return;
+  }
 
-<div>
-EXP:
-<input id="endExp1" type="number">
-</div>
+  expInput.value = "";
+  percentInput.value = "";
+  levelInput.value = "";
 
-<div>
-EXP %:
-<input id="endPercent1" type="number" step="0.01">
-</div>
+  try {
+    const result = await fetchExactExp(ign);
 
-</div>
+    levelInput.value = result.level;
+    expInput.value = result.exactExp;
+    percentInput.value = result.percent;
 
-</td>
+    updateRow(rowNum);
+  } catch (err) {
+    alert(err.message);
+  }
+}
 
-<td id="gained1">-</td>
-
-<td>
-<input id="rate1" type="number" step="any">
-</td>
-
-<td id="fee1">-</td>
-
-<td>
-<button onclick="setStart(1)">Fetch Start</button>
-<button onclick="setEnd(1)">Fetch End</button>
-</td>
-
-</tr>
-
-
-<tr>
-
-<td>
-<input id="ign2" placeholder="Character 2">
-</td>
-
-<td>
-
-<div class="exp-box">
-
-<div>
-Level:
-<input id="startLevel2" type="number">
-</div>
-
-<div>
-EXP:
-<input id="startExp2" type="number">
-</div>
-
-<div>
-EXP %:
-<input id="startPercent2" type="number" step="0.01">
-</div>
-
-</div>
-
-</td>
-
-<td>
-
-<div class="exp-box">
-
-<div>
-Level:
-<input id="endLevel2" type="number">
-</div>
-
-<div>
-EXP:
-<input id="endExp2" type="number">
-</div>
-
-<div>
-EXP %:
-<input id="endPercent2" type="number" step="0.01">
-</div>
-
-</div>
-
-</td>
-
-<td id="gained2">-</td>
-
-<td>
-<input id="rate2" type="number" step="any">
-</td>
-
-<td id="fee2">-</td>
-
-<td>
-<button onclick="setStart(2)">Fetch Start</button>
-<button onclick="setEnd(2)">Fetch End</button>
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-<script src="exptable.js"></script>
-<script src="script.js"></script>
-
-</body>
-</html>
+for (let i = 1; i <= 2; i++) {
+  document.getElementById(`startExp${i}`)?.addEventListener("input", () => updateRow(i));
+  document.getElementById(`endExp${i}`)?.addEventListener("input", () => updateRow(i));
+  document.getElementById(`rate${i}`)?.addEventListener("input", () => updateRow(i));
+}
