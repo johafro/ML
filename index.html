@@ -2,25 +2,23 @@
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Maple EXP Viewer</title>
-
 <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-<main class="container">
+<div class="layout">
+
+<div class="left-panel">
 
 <h1>Maple EXP Viewer</h1>
 
-<p>Enter up to 10 MapleLegends character names.</p>
+<p>Enter up to 10 character names</p>
 
-<div class="search-grid">
+<div class="search-column">
 
 <input id="ign1" placeholder="Character 1">
 <input id="ign2" placeholder="Character 2">
@@ -37,9 +35,15 @@
 
 <button onclick="fetchCharacters()">Fetch EXP</button>
 
+</div>
+
+<div class="right-panel">
+
 <div id="result" class="result"></div>
 
-</main>
+</div>
+
+</div>
 
 <script src="exptable.js"></script>
 <script src="script.js"></script>
