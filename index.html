@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maple EXP Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Maple EXP Viewer</h1>
+
+    <div class="search-row">
+      <input id="name" type="text" placeholder="Enter character name" />
+      <button onclick="fetchCharacter()">Fetch EXP</button>
+    </div>
+
+    <div id="result" class="result"></div>
+  </main>
+
+  <script src="exptable.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
