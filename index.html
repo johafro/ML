@@ -10,40 +10,74 @@
 
 <body>
 
-<div class="layout">
-
-<div class="left-panel">
-
 <h1>Maple EXP Viewer</h1>
 
-<p>Enter up to 10 character names</p>
+<table class="exp-table">
 
-<div class="search-column">
+<thead>
+<tr>
+<th>Character Name</th>
+<th>Character EXP</th>
+</tr>
+</thead>
 
-<input id="ign1" placeholder="Character 1">
-<input id="ign2" placeholder="Character 2">
-<input id="ign3" placeholder="Character 3">
-<input id="ign4" placeholder="Character 4">
-<input id="ign5" placeholder="Character 5">
-<input id="ign6" placeholder="Character 6">
-<input id="ign7" placeholder="Character 7">
-<input id="ign8" placeholder="Character 8">
-<input id="ign9" placeholder="Character 9">
-<input id="ign10" placeholder="Character 10">
+<tbody>
 
-</div>
+<tr>
+<td><input id="ign1" placeholder="Character 1"></td>
+<td id="result1"></td>
+</tr>
+
+<tr>
+<td><input id="ign2" placeholder="Character 2"></td>
+<td id="result2"></td>
+</tr>
+
+<tr>
+<td><input id="ign3" placeholder="Character 3"></td>
+<td id="result3"></td>
+</tr>
+
+<tr>
+<td><input id="ign4" placeholder="Character 4"></td>
+<td id="result4"></td>
+</tr>
+
+<tr>
+<td><input id="ign5" placeholder="Character 5"></td>
+<td id="result5"></td>
+</tr>
+
+<tr>
+<td><input id="ign6" placeholder="Character 6"></td>
+<td id="result6"></td>
+</tr>
+
+<tr>
+<td><input id="ign7" placeholder="Character 7"></td>
+<td id="result7"></td>
+</tr>
+
+<tr>
+<td><input id="ign8" placeholder="Character 8"></td>
+<td id="result8"></td>
+</tr>
+
+<tr>
+<td><input id="ign9" placeholder="Character 9"></td>
+<td id="result9"></td>
+</tr>
+
+<tr>
+<td><input id="ign10" placeholder="Character 10"></td>
+<td id="result10"></td>
+</tr>
+
+</tbody>
+
+</table>
 
 <button onclick="fetchCharacters()">Fetch EXP</button>
-
-</div>
-
-<div class="right-panel">
-
-<div id="result" class="result"></div>
-
-</div>
-
-</div>
 
 <script src="exptable.js"></script>
 <script src="script.js"></script>
