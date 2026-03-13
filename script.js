@@ -51,29 +51,31 @@ function updateRow(rowNum) {
   }
 }
 
-async function setStart(rowNum) {
-  const ign = document.getElementById(`ign${rowNum}`).value.trim();
-  const startCell = document.getElementById(`start${rowNum}`);
+async function setStart(rowNum){
 
-  if (!ign) {
-    startCell.textContent = "Enter IGN first";
-    return;
-  }
+const ign=document.getElementById(`ign${rowNum}`).value.trim();
 
-  startCell.textContent = "Loading...";
+if(!ign) return;
 
-  try {
-    const result = await fetchExactExp(ign);
-    startCell.textContent = result.exactExp.toLocaleString();
-    startCell.dataset.value = result.exactExp;
-    updateRow(rowNum);
-  } catch (err) {
-    startCell.textContent = err.message;
-    startCell.dataset.value = "";
-    updateRow(rowNum);
-  }
+try{
+
+const result=await fetchExactExp(ign);
+
+document.getElementById(`startLevel${rowNum}`).textContent=result.level;
+document.getElementById(`startExp${rowNum}`).textContent=result.exactExp.toLocaleString();
+document.getElementById(`startPercent${rowNum}`).textContent=result.percent+"%";
+
+document.getElementById(`start${rowNum}`).dataset.value=result.exactExp;
+
+updateRow(rowNum);
+
+}catch(err){
+
+document.getElementById(`startExp${rowNum}`).textContent=err.message;
+
 }
 
+}
 async function setEnd(rowNum) {
   const ign = document.getElementById(`ign${rowNum}`).value.trim();
   const endCell = document.getElementById(`end${rowNum}`);
@@ -100,3 +102,4 @@ async function setEnd(rowNum) {
 for (let i = 1; i <= 10; i++) {
   document.getElementById(`rate${i}`).addEventListener("input", () => updateRow(i));
 }
+
