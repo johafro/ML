@@ -1,161 +1,178 @@
-const rowState = {};
+<!DOCTYPE html>
+<html lang="en">
 
-async function fetchExactExp(name) {
-  const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
-  const data = await response.json();
+<head>
 
-  if (!response.ok) {
-    throw new Error(data.error || "Character not found");
-  }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  const level = Number(data.level);
-  const percent = parseFloat(String(data.exp).replace("%", "").trim());
-  const row = expTable[level];
+<title>Maple Leech Fee Tracker</title>
 
-  if (!row) {
-    throw new Error(`EXP table missing level ${level}`);
-  }
+<link rel="stylesheet" href="style.css">
 
-  const exactExp = Math.floor(row.acc + row.next * (percent / 100));
+</head>
 
-  return {
-    level,
-    percent,
-    exactExp
-  };
-}
+<body>
 
-function ensureRowState(rowNum) {
-  if (!rowState[rowNum]) {
-    rowState[rowNum] = {
-      startExp: null,
-      endExp: null
-    };
-  }
-}
+<h1>Maple Leech Fee Tracker</h1>
 
-function updateRow(rowNum) {
-  ensureRowState(rowNum);
+<table class="exp-table">
 
-  const gainedCell = document.getElementById(`gained${rowNum}`);
-  const feeCell = document.getElementById(`fee${rowNum}`);
-  const rateInput = document.getElementById(`rate${rowNum}`);
+<thead>
+<tr>
+<th>Character</th>
+<th>Start EXP</th>
+<th>End EXP</th>
+<th>EXP Gained</th>
+<th>Rate (EXP / meso)</th>
+<th>Fee (mesos)</th>
+<th>Actions</th>
+</tr>
+</thead>
 
-  if (!gainedCell || !feeCell || !rateInput) {
-    return;
-  }
+<tbody>
 
-  const startExp = rowState[rowNum].startExp;
-  const endExp = rowState[rowNum].endExp;
-  const rate = Number(rateInput.value || 0);
+<tr>
 
-  if (startExp !== null && endExp !== null) {
-    const gained = endExp - startExp;
-    gainedCell.textContent = gained.toLocaleString();
+<td>
+<input id="ign1" placeholder="Character 1">
+</td>
 
-    if (rate > 0) {
-      const fee = gained / rate;
-      feeCell.textContent = Math.ceil(fee).toLocaleString();
-    } else {
-      feeCell.textContent = "-";
-    }
-  } else {
-    gainedCell.textContent = "-";
-    feeCell.textContent = "-";
-  }
-}
+<td>
 
-async function setStart(rowNum) {
-  const ignInput = document.getElementById(`ign${rowNum}`);
-  const levelEl = document.getElementById(`startLevel${rowNum}`);
-  const expEl = document.getElementById(`startExp${rowNum}`);
-  const percentEl = document.getElementById(`startPercent${rowNum}`);
+<div class="exp-box">
 
-  if (!ignInput || !levelEl || !expEl || !percentEl) {
-    return;
-  }
+<div>
+Level:
+<input id="startLevel1" type="number">
+</div>
 
-  const ign = ignInput.value.trim();
+<div>
+EXP:
+<input id="startExp1" type="number">
+</div>
 
-  if (!ign) {
-    expEl.textContent = "Enter IGN first";
-    return;
-  }
+<div>
+EXP %:
+<input id="startPercent1" type="number" step="0.01">
+</div>
 
-  levelEl.textContent = "-";
-  expEl.textContent = "Loading...";
-  percentEl.textContent = "-";
+</div>
 
-  try {
-    const result = await fetchExactExp(ign);
+</td>
 
-    levelEl.textContent = result.level;
-    expEl.textContent = result.exactExp.toLocaleString();
-    percentEl.textContent = `${result.percent}%`;
+<td>
 
-    ensureRowState(rowNum);
-    rowState[rowNum].startExp = result.exactExp;
+<div class="exp-box">
 
-    updateRow(rowNum);
-  } catch (err) {
-    levelEl.textContent = "-";
-    expEl.textContent = err.message;
-    percentEl.textContent = "-";
+<div>
+Level:
+<input id="endLevel1" type="number">
+</div>
 
-    ensureRowState(rowNum);
-    rowState[rowNum].startExp = null;
+<div>
+EXP:
+<input id="endExp1" type="number">
+</div>
 
-    updateRow(rowNum);
-  }
-}
+<div>
+EXP %:
+<input id="endPercent1" type="number" step="0.01">
+</div>
 
-async function setEnd(rowNum) {
-  const ignInput = document.getElementById(`ign${rowNum}`);
-  const levelEl = document.getElementById(`endLevel${rowNum}`);
-  const expEl = document.getElementById(`endExp${rowNum}`);
-  const percentEl = document.getElementById(`endPercent${rowNum}`);
+</div>
 
-  if (!ignInput || !levelEl || !expEl || !percentEl) {
-    return;
-  }
+</td>
 
-  const ign = ignInput.value.trim();
+<td id="gained1">-</td>
 
-  if (!ign) {
-    expEl.textContent = "Enter IGN first";
-    return;
-  }
+<td>
+<input id="rate1" type="number" step="any">
+</td>
 
-  levelEl.textContent = "-";
-  expEl.textContent = "Loading...";
-  percentEl.textContent = "-";
+<td id="fee1">-</td>
 
-  try {
-    const result = await fetchExactExp(ign);
+<td>
+<button onclick="setStart(1)">Fetch Start</button>
+<button onclick="setEnd(1)">Fetch End</button>
+</td>
 
-    levelEl.textContent = result.level;
-    expEl.textContent = result.exactExp.toLocaleString();
-    percentEl.textContent = `${result.percent}%`;
+</tr>
 
-    ensureRowState(rowNum);
-    rowState[rowNum].endExp = result.exactExp;
 
-    updateRow(rowNum);
-  } catch (err) {
-    levelEl.textContent = "-";
-    expEl.textContent = err.message;
-    percentEl.textContent = "-";
+<tr>
 
-    ensureRowState(rowNum);
-    rowState[rowNum].endExp = null;
+<td>
+<input id="ign2" placeholder="Character 2">
+</td>
 
-    updateRow(rowNum);
-  }
-}
+<td>
 
-for (let i = 1; i <= 2; i++) {
-  const rateInput = document.getElementById(`rate${i}`);
-  if (rateInput) {
-    rateInput.addEventListener("input", () => updateRow(i));
-  }
-}
+<div class="exp-box">
+
+<div>
+Level:
+<input id="startLevel2" type="number">
+</div>
+
+<div>
+EXP:
+<input id="startExp2" type="number">
+</div>
+
+<div>
+EXP %:
+<input id="startPercent2" type="number" step="0.01">
+</div>
+
+</div>
+
+</td>
+
+<td>
+
+<div class="exp-box">
+
+<div>
+Level:
+<input id="endLevel2" type="number">
+</div>
+
+<div>
+EXP:
+<input id="endExp2" type="number">
+</div>
+
+<div>
+EXP %:
+<input id="endPercent2" type="number" step="0.01">
+</div>
+
+</div>
+
+</td>
+
+<td id="gained2">-</td>
+
+<td>
+<input id="rate2" type="number" step="any">
+</td>
+
+<td id="fee2">-</td>
+
+<td>
+<button onclick="setStart(2)">Fetch Start</button>
+<button onclick="setEnd(2)">Fetch End</button>
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<script src="exptable.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
