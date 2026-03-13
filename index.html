@@ -1,4 +1,43 @@
-<td id="start1">
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Maple Leech Fee Tracker</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<h1>Maple Leech Fee Tracker</h1>
+
+<table class="exp-table">
+
+<thead>
+
+<tr>
+<th>Character</th>
+<th>Start EXP</th>
+<th>End EXP</th>
+<th>EXP Gained</th>
+<th>Rate (EXP / meso)</th>
+<th>Fee (mesos)</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td><input id="ign1" placeholder="Character 1"></td>
+
+<td>
 <div class="exp-box">
 <div>Level: <span id="startLevel1">-</span></div>
 <div>EXP: <span id="startExp1">-</span></div>
@@ -6,10 +45,341 @@
 </div>
 </td>
 
-<td id="end1">
+<td>
 <div class="exp-box">
 <div>Level: <span id="endLevel1">-</span></div>
 <div>EXP: <span id="endExp1">-</span></div>
 <div>EXP %: <span id="endPercent1">-</span></div>
 </div>
 </td>
+
+<td id="gained1">-</td>
+
+<td>
+<input id="rate1" type="number" step="any" placeholder="Rate">
+</td>
+
+<td id="fee1">-</td>
+
+<td>
+<button onclick="setStart(1)">Set Start</button>
+<button onclick="setEnd(1)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign2" placeholder="Character 2"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel2">-</span></div>
+<div>EXP: <span id="startExp2">-</span></div>
+<div>EXP %: <span id="startPercent2">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel2">-</span></div>
+<div>EXP: <span id="endExp2">-</span></div>
+<div>EXP %: <span id="endPercent2">-</span></div>
+</div>
+</td>
+
+<td id="gained2">-</td>
+
+<td>
+<input id="rate2" type="number" step="any">
+</td>
+
+<td id="fee2">-</td>
+
+<td>
+<button onclick="setStart(2)">Set Start</button>
+<button onclick="setEnd(2)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign3" placeholder="Character 3"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel3">-</span></div>
+<div>EXP: <span id="startExp3">-</span></div>
+<div>EXP %: <span id="startPercent3">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel3">-</span></div>
+<div>EXP: <span id="endExp3">-</span></div>
+<div>EXP %: <span id="endPercent3">-</span></div>
+</div>
+</td>
+
+<td id="gained3">-</td>
+
+<td>
+<input id="rate3" type="number" step="any">
+</td>
+
+<td id="fee3">-</td>
+
+<td>
+<button onclick="setStart(3)">Set Start</button>
+<button onclick="setEnd(3)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign4" placeholder="Character 4"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel4">-</span></div>
+<div>EXP: <span id="startExp4">-</span></div>
+<div>EXP %: <span id="startPercent4">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel4">-</span></div>
+<div>EXP: <span id="endExp4">-</span></div>
+<div>EXP %: <span id="endPercent4">-</span></div>
+</div>
+</td>
+
+<td id="gained4">-</td>
+
+<td>
+<input id="rate4" type="number" step="any">
+</td>
+
+<td id="fee4">-</td>
+
+<td>
+<button onclick="setStart(4)">Set Start</button>
+<button onclick="setEnd(4)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign5" placeholder="Character 5"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel5">-</span></div>
+<div>EXP: <span id="startExp5">-</span></div>
+<div>EXP %: <span id="startPercent5">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel5">-</span></div>
+<div>EXP: <span id="endExp5">-</span></div>
+<div>EXP %: <span id="endPercent5">-</span></div>
+</div>
+</td>
+
+<td id="gained5">-</td>
+
+<td>
+<input id="rate5" type="number" step="any">
+</td>
+
+<td id="fee5">-</td>
+
+<td>
+<button onclick="setStart(5)">Set Start</button>
+<button onclick="setEnd(5)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign6" placeholder="Character 6"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel6">-</span></div>
+<div>EXP: <span id="startExp6">-</span></div>
+<div>EXP %: <span id="startPercent6">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel6">-</span></div>
+<div>EXP: <span id="endExp6">-</span></div>
+<div>EXP %: <span id="endPercent6">-</span></div>
+</div>
+</td>
+
+<td id="gained6">-</td>
+
+<td>
+<input id="rate6" type="number" step="any">
+</td>
+
+<td id="fee6">-</td>
+
+<td>
+<button onclick="setStart(6)">Set Start</button>
+<button onclick="setEnd(6)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign7" placeholder="Character 7"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel7">-</span></div>
+<div>EXP: <span id="startExp7">-</span></div>
+<div>EXP %: <span id="startPercent7">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel7">-</span></div>
+<div>EXP: <span id="endExp7">-</span></div>
+<div>EXP %: <span id="endPercent7">-</span></div>
+</div>
+</td>
+
+<td id="gained7">-</td>
+
+<td>
+<input id="rate7" type="number" step="any">
+</td>
+
+<td id="fee7">-</td>
+
+<td>
+<button onclick="setStart(7)">Set Start</button>
+<button onclick="setEnd(7)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign8" placeholder="Character 8"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel8">-</span></div>
+<div>EXP: <span id="startExp8">-</span></div>
+<div>EXP %: <span id="startPercent8">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel8">-</span></div>
+<div>EXP: <span id="endExp8">-</span></div>
+<div>EXP %: <span id="endPercent8">-</span></div>
+</div>
+</td>
+
+<td id="gained8">-</td>
+
+<td>
+<input id="rate8" type="number" step="any">
+</td>
+
+<td id="fee8">-</td>
+
+<td>
+<button onclick="setStart(8)">Set Start</button>
+<button onclick="setEnd(8)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign9" placeholder="Character 9"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel9">-</span></div>
+<div>EXP: <span id="startExp9">-</span></div>
+<div>EXP %: <span id="startPercent9">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel9">-</span></div>
+<div>EXP: <span id="endExp9">-</span></div>
+<div>EXP %: <span id="endPercent9">-</span></div>
+</div>
+</td>
+
+<td id="gained9">-</td>
+
+<td>
+<input id="rate9" type="number" step="any">
+</td>
+
+<td id="fee9">-</td>
+
+<td>
+<button onclick="setStart(9)">Set Start</button>
+<button onclick="setEnd(9)">Set End</button>
+</td>
+
+</tr>
+
+<tr>
+<td><input id="ign10" placeholder="Character 10"></td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="startLevel10">-</span></div>
+<div>EXP: <span id="startExp10">-</span></div>
+<div>EXP %: <span id="startPercent10">-</span></div>
+</div>
+</td>
+
+<td>
+<div class="exp-box">
+<div>Level: <span id="endLevel10">-</span></div>
+<div>EXP: <span id="endExp10">-</span></div>
+<div>EXP %: <span id="endPercent10">-</span></div>
+</div>
+</td>
+
+<td id="gained10">-</td>
+
+<td>
+<input id="rate10" type="number" step="any">
+</td>
+
+<td id="fee10">-</td>
+
+<td>
+<button onclick="setStart(10)">Set Start</button>
+<button onclick="setEnd(10)">Set End</button>
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<script src="exptable.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
