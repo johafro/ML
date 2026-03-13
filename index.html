@@ -1,24 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maple EXP Viewer</title>
-  <link rel="stylesheet" href="style.css" />
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Maple EXP Viewer</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
-  <main class="container">
-    <h1>Maple EXP Viewer</h1>
 
-    <div class="search-row">
-      <input id="name" type="text" placeholder="Enter character name" />
-      <button onclick="fetchCharacter()">Fetch EXP</button>
-    </div>
+<main class="container">
 
-    <div id="result" class="result"></div>
-  </main>
+<h1>Maple EXP Viewer</h1>
 
-  <script src="exptable.js"></script>
-  <script src="script.js"></script>
+<p>Enter up to 10 MapleLegends character names.</p>
+
+<div class="search-grid">
+
+<input id="ign1" placeholder="Character 1">
+<input id="ign2" placeholder="Character 2">
+<input id="ign3" placeholder="Character 3">
+<input id="ign4" placeholder="Character 4">
+<input id="ign5" placeholder="Character 5">
+<input id="ign6" placeholder="Character 6">
+<input id="ign7" placeholder="Character 7">
+<input id="ign8" placeholder="Character 8">
+<input id="ign9" placeholder="Character 9">
+<input id="ign10" placeholder="Character 10">
+
+</div>
+
+<button onclick="fetchCharacters()">Fetch EXP</button>
+
+<div id="result" class="result"></div>
+
+</main>
+
+<script src="exptable.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
