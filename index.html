@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Maple Leech Fee Tracker</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Maple Leech Fee Tracker</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -18,11 +18,14 @@
 
 <th>Character</th>
 
-<th>Start EXP</th>
+<th class="start-header">
+Start EXP
+<button class="calc-all-btn" onclick="fetchStartAll()">Calc. All Start</button>
+</th>
 
 <th class="end-header">
-  Current / End EXP
-  <button class="calc-all-btn" onclick="fetchEndAll()">Calc. All End</button>
+Current / End EXP
+<button class="calc-all-btn" onclick="fetchEndAll()">Calc. All End</button>
 </th>
 
 <th>EXP Gained</th>
@@ -93,7 +96,12 @@
 <input id="rate1" type="number" step="any">
 </td>
 
-<td id="fee1">-</td>
+<td>
+<div class="fee-box">
+<div id="fee1">-</div>
+<button onclick="copyFee(1)" class="copy-btn">Copy</button>
+</div>
+</td>
 
 <td>
 <button onclick="setStart(1)">Fetch Start</button>
@@ -160,7 +168,12 @@
 <input id="rate2" type="number" step="any">
 </td>
 
-<td id="fee2">-</td>
+<td>
+<div class="fee-box">
+<div id="fee2">-</div>
+<button onclick="copyFee(2)" class="copy-btn">Copy</button>
+</div>
+</td>
 
 <td>
 <button onclick="setStart(2)">Fetch Start</button>
