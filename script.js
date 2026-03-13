@@ -1,58 +1,57 @@
-async function fetchCharacters() {
-  const resultBox = document.getElementById("result");
-  resultBox.innerHTML = "Loading...";
+async function fetchCharacters(){
 
-  const names = [];
+const requests=[];
 
-  for (let i = 1; i <= 10; i++) {
-    const value = document.getElementById("ign" + i).value.trim();
-    if (value) names.push(value);
-  }
+for(let i=1;i<=10;i++){
 
-  if (names.length === 0) {
-    resultBox.innerHTML = "No characters entered.";
-    return;
-  }
+const name=document.getElementById("ign"+i).value.trim();
+const resultCell=document.getElementById("result"+i);
 
-  const requests = names.map(async (name) => {
-    try {
-      const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
-      const data = await response.json();
+if(!name){
+resultCell.innerHTML="";
+continue;
+}
 
-      if (!response.ok) {
-        throw new Error(data.error || "Character not found");
-      }
+resultCell.innerHTML="Loading...";
 
-      const level = Number(data.level);
-      const percent = parseFloat(String(data.exp).replace("%", "").trim());
-      const row = expTable[level];
+requests.push(loadCharacter(name,resultCell));
 
-      if (!row) {
-        throw new Error(`EXP table is missing level ${level}`);
-      }
+}
 
-      const exactExp = Math.floor(row.acc + row.next * (percent / 100));
-      const remaining = Math.ceil(row.next * (1 - percent / 100));
+await Promise.all(requests);
 
-      return `
-        <div class="card">
-          <div><b>${data.name}</b></div>
-          <div>Level: ${level}</div>
-          <div>EXP: ${data.exp}</div>
-          <div>Exact EXP: ${exactExp.toLocaleString()}</div>
-          <div>EXP Remaining: ${remaining.toLocaleString()}</div>
-        </div>
-      `;
-    } catch (err) {
-      return `
-        <div class="card">
-          <div><b>${name}</b></div>
-          <div class="error">Error: ${err.message}</div>
-        </div>
-      `;
-    }
-  });
+}
 
-  const results = await Promise.all(requests);
-  resultBox.innerHTML = results.join("");
+async function loadCharacter(name,resultCell){
+
+try{
+
+const response=await fetch(`/api/character?name=${encodeURIComponent(name)}`);
+const data=await response.json();
+
+if(!response.ok){
+throw new Error(data.error||"Character not found");
+}
+
+const level=Number(data.level);
+const percent=parseFloat(String(data.exp).replace("%",""));
+
+const row=expTable[level];
+
+const exactExp=Math.floor(row.acc + row.next*(percent/100));
+const remaining=Math.ceil(row.next*(1-percent/100));
+
+resultCell.innerHTML=`
+Level ${level}<br>
+EXP: ${data.exp}<br>
+Exact EXP: ${exactExp.toLocaleString()}<br>
+Remaining: ${remaining.toLocaleString()}
+`;
+
+}catch(err){
+
+resultCell.innerHTML=`<span class="error">${err.message}</span>`;
+
+}
+
 }
