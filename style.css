@@ -1,95 +1,49 @@
 body{
-margin:0;
 font-family:Arial, sans-serif;
 background:#0d0d0d;
 color:white;
+padding:40px;
 }
 
-/* MAIN LAYOUT */
-
-.layout{
-display:flex;
-height:100vh;
-}
-
-/* LEFT SIDE */
-
-.left-panel{
-width:320px;
-background:#111;
-padding:30px;
-border-right:1px solid #333;
-box-sizing:border-box;
-}
-
-.left-panel h1{
-font-size:28px;
-margin-bottom:10px;
-}
-
-.left-panel p{
-color:#aaa;
+h1{
 margin-bottom:20px;
 }
 
-.search-column{
-display:flex;
-flex-direction:column;
-gap:8px;
+.exp-table{
+width:100%;
+border-collapse:collapse;
 margin-bottom:20px;
 }
 
-.search-column input{
-padding:10px;
-font-size:16px;
-border:none;
-outline:none;
+.exp-table th,
+.exp-table td{
+border:1px solid #333;
+padding:12px;
+}
+
+.exp-table th{
+background:#1a1a1a;
+text-align:left;
+}
+
+input{
+width:100%;
+padding:8px;
 background:#1b1b1b;
+border:none;
 color:white;
 }
 
-/* BUTTON */
-
 button{
-padding:12px;
+padding:12px 20px;
 font-size:16px;
-border:none;
 background:white;
-color:black;
+border:none;
 cursor:pointer;
 }
 
 button:hover{
-background:#e6e6e6;
-}
-
-/* RIGHT SIDE */
-
-.right-panel{
-flex:1;
-padding:30px;
-overflow:auto;
-}
-
-/* RESULTS */
-
-.result{
-display:flex;
-flex-direction:column;
-gap:12px;
-}
-
-/* CARD */
-
-.card{
-background:#1a1a1a;
-border:1px solid #333;
-padding:14px;
-border-radius:6px;
-}
-
-.card b{
-font-size:18px;
+background:#ddd;
 }
 
 .error{
