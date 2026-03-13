@@ -76,30 +76,34 @@ document.getElementById(`startExp${rowNum}`).textContent=err.message;
 }
 
 }
-async function setEnd(rowNum) {
-  const ign = document.getElementById(`ign${rowNum}`).value.trim();
-  const endCell = document.getElementById(`end${rowNum}`);
+async function setEnd(rowNum){
 
-  if (!ign) {
-    endCell.textContent = "Enter IGN first";
-    return;
-  }
+const ign=document.getElementById(`ign${rowNum}`).value.trim();
 
-  endCell.textContent = "Loading...";
+if(!ign) return;
 
-  try {
-    const result = await fetchExactExp(ign);
-    endCell.textContent = result.exactExp.toLocaleString();
-    endCell.dataset.value = result.exactExp;
-    updateRow(rowNum);
-  } catch (err) {
-    endCell.textContent = err.message;
-    endCell.dataset.value = "";
-    updateRow(rowNum);
-  }
+try{
+
+const result=await fetchExactExp(ign);
+
+document.getElementById(`endLevel${rowNum}`).textContent=result.level;
+document.getElementById(`endExp${rowNum}`).textContent=result.exactExp.toLocaleString();
+document.getElementById(`endPercent${rowNum}`).textContent=result.percent+"%";
+
+document.getElementById(`end${rowNum}`).dataset.value=result.exactExp;
+
+updateRow(rowNum);
+
+}catch(err){
+
+document.getElementById(`endExp${rowNum}`).textContent=err.message;
+
+}
+
 }
 
 for (let i = 1; i <= 10; i++) {
   document.getElementById(`rate${i}`).addEventListener("input", () => updateRow(i));
 }
+
 
