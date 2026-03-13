@@ -1,57 +1,102 @@
-async function fetchCharacters(){
+async function fetchExactExp(name) {
+  const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
+  const data = await response.json();
 
-const requests=[];
+  if (!response.ok) {
+    throw new Error(data.error || "Character not found");
+  }
 
-for(let i=1;i<=10;i++){
+  const level = Number(data.level);
+  const percent = parseFloat(String(data.exp).replace("%", "").trim());
+  const row = expTable[level];
 
-const name=document.getElementById("ign"+i).value.trim();
-const resultCell=document.getElementById("result"+i);
+  if (!row) {
+    throw new Error(`EXP table is missing level ${level}`);
+  }
 
-if(!name){
-resultCell.innerHTML="";
-continue;
+  const exactExp = Math.floor(row.acc + row.next * (percent / 100));
+
+  return {
+    name: data.name,
+    level,
+    percent,
+    exactExp
+  };
 }
 
-resultCell.innerHTML="Loading...";
+function updateRow(rowNum) {
+  const startCell = document.getElementById(`start${rowNum}`);
+  const endCell = document.getElementById(`end${rowNum}`);
+  const gainedCell = document.getElementById(`gained${rowNum}`);
+  const feeCell = document.getElementById(`fee${rowNum}`);
+  const rateInput = document.getElementById(`rate${rowNum}`);
 
-requests.push(loadCharacter(name,resultCell));
+  const startExp = Number(startCell.dataset.value || 0);
+  const endExp = Number(endCell.dataset.value || 0);
+  const rate = Number(rateInput.value || 0);
 
+  if (startExp > 0 && endExp > 0) {
+    const gained = endExp - startExp;
+    gainedCell.textContent = gained.toLocaleString();
+
+    if (rate > 0) {
+      const fee = gained / rate;
+      feeCell.textContent = Math.ceil(fee).toLocaleString();
+    } else {
+      feeCell.textContent = "-";
+    }
+  } else {
+    gainedCell.textContent = "-";
+    feeCell.textContent = "-";
+  }
 }
 
-await Promise.all(requests);
+async function setStart(rowNum) {
+  const ign = document.getElementById(`ign${rowNum}`).value.trim();
+  const startCell = document.getElementById(`start${rowNum}`);
 
+  if (!ign) {
+    startCell.textContent = "Enter IGN first";
+    return;
+  }
+
+  startCell.textContent = "Loading...";
+
+  try {
+    const result = await fetchExactExp(ign);
+    startCell.textContent = result.exactExp.toLocaleString();
+    startCell.dataset.value = result.exactExp;
+    updateRow(rowNum);
+  } catch (err) {
+    startCell.textContent = err.message;
+    startCell.dataset.value = "";
+    updateRow(rowNum);
+  }
 }
 
-async function loadCharacter(name,resultCell){
+async function setEnd(rowNum) {
+  const ign = document.getElementById(`ign${rowNum}`).value.trim();
+  const endCell = document.getElementById(`end${rowNum}`);
 
-try{
+  if (!ign) {
+    endCell.textContent = "Enter IGN first";
+    return;
+  }
 
-const response=await fetch(`/api/character?name=${encodeURIComponent(name)}`);
-const data=await response.json();
+  endCell.textContent = "Loading...";
 
-if(!response.ok){
-throw new Error(data.error||"Character not found");
+  try {
+    const result = await fetchExactExp(ign);
+    endCell.textContent = result.exactExp.toLocaleString();
+    endCell.dataset.value = result.exactExp;
+    updateRow(rowNum);
+  } catch (err) {
+    endCell.textContent = err.message;
+    endCell.dataset.value = "";
+    updateRow(rowNum);
+  }
 }
 
-const level=Number(data.level);
-const percent=parseFloat(String(data.exp).replace("%",""));
-
-const row=expTable[level];
-
-const exactExp=Math.floor(row.acc + row.next*(percent/100));
-const remaining=Math.ceil(row.next*(1-percent/100));
-
-resultCell.innerHTML=`
-Level ${level}<br>
-EXP: ${data.exp}<br>
-Exact EXP: ${exactExp.toLocaleString()}<br>
-Remaining: ${remaining.toLocaleString()}
-`;
-
-}catch(err){
-
-resultCell.innerHTML=`<span class="error">${err.message}</span>`;
-
-}
-
+for (let i = 1; i <= 10; i++) {
+  document.getElementById(`rate${i}`).addEventListener("input", () => updateRow(i));
 }
