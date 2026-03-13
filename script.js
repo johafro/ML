@@ -221,3 +221,21 @@ function copyFee(row) {
   navigator.clipboard.writeText(feeText);
 
 }
+
+function fetchStartAll() {
+
+  for (let i = 1; i <= 2; i++) {
+
+    const ignInput = document.getElementById(`ign${i}`);
+
+    if (!ignInput) continue;
+
+    const ign = ignInput.value.trim();
+
+    if (ign !== "") {
+      setStart(i);
+    }
+
+  }
+
+}
