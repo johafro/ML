@@ -194,3 +194,17 @@ for (let i = 1; i <= 2; i++) {
 
   rate?.addEventListener("input", () => updateRow(i));
 }
+
+function fetchEndAll() {
+
+  for (let i = 1; i <= 2; i++) {
+
+    const ign = document.getElementById(`ign${i}`)?.value.trim();
+
+    if (ign) {
+      setEnd(i);
+    }
+
+  }
+
+}
