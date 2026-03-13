@@ -1,74 +1,97 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0d0d0d;
-  color: #ffffff;
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#0d0d0d;
+color:white;
 }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 60px 20px;
+/* MAIN LAYOUT */
+
+.layout{
+display:flex;
+height:100vh;
 }
 
-h1 {
-  font-size: 40px;
-  margin-bottom: 10px;
+/* LEFT SIDE */
+
+.left-panel{
+width:320px;
+background:#111;
+padding:30px;
+border-right:1px solid #333;
+box-sizing:border-box;
 }
 
-p {
-  color: #aaa;
-  margin-bottom: 25px;
+.left-panel h1{
+font-size:28px;
+margin-bottom:10px;
 }
 
-.search-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 20px;
+.left-panel p{
+color:#aaa;
+margin-bottom:20px;
 }
 
-.search-grid input {
-  padding: 12px;
-  font-size: 18px;
-  border: none;
-  outline: none;
-  background: #1b1b1b;
-  color: white;
+.search-column{
+display:flex;
+flex-direction:column;
+gap:8px;
+margin-bottom:20px;
 }
 
-button {
-  padding: 14px 24px;
-  font-size: 18px;
-  border: none;
-  background: #ffffff;
-  color: #000;
-  cursor: pointer;
-  margin-bottom: 30px;
+.search-column input{
+padding:10px;
+font-size:16px;
+border:none;
+outline:none;
+background:#1b1b1b;
+color:white;
 }
 
-button:hover {
-  background: #e6e6e6;
+/* BUTTON */
+
+button{
+padding:12px;
+font-size:16px;
+border:none;
+background:white;
+color:black;
+cursor:pointer;
 }
 
-.result {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+button:hover{
+background:#e6e6e6;
 }
 
-.card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  padding: 16px;
-  border-radius: 8px;
+/* RIGHT SIDE */
+
+.right-panel{
+flex:1;
+padding:30px;
+overflow:auto;
 }
 
-.card b {
-  font-size: 18px;
+/* RESULTS */
+
+.result{
+display:flex;
+flex-direction:column;
+gap:12px;
 }
 
-.error {
-  color: #ff6b6b;
-  margin-top: 5px;
+/* CARD */
+
+.card{
+background:#1a1a1a;
+border:1px solid #333;
+padding:14px;
+border-radius:6px;
+}
+
+.card b{
+font-size:18px;
+}
+
+.error{
+color:#ff6b6b;
 }
