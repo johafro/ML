@@ -1,115 +1,270 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #0d0d0d;
-  color: white;
-  padding: 30px;
-  margin: 0;
+async function fetchExactExp(name) {
+  const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
+  const text = await response.text();
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(text || "API did not return valid JSON");
+  }
+
+  if (!response.ok) {
+    throw new Error(data.details || data.error || "Character not found");
+  }
+
+  const level = Number(data.level);
+  const percent = parseFloat(String(data.exp).replace("%", "").trim());
+  const row = expTable[level];
+
+  if (!row) {
+    throw new Error(`EXP table missing level ${level}`);
+  }
+
+  const exactExp = Math.floor(row.acc + row.next * (percent / 100));
+
+  return {
+    level,
+    percent,
+    exactExp
+  };
 }
 
-h1 {
-  margin-bottom: 20px;
+function calculateExactExpFromLevelPercent(level, percent) {
+  const row = expTable[level];
+  if (!row) return "";
+
+  const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+  return Math.floor(row.acc + row.next * (safePercent / 100));
 }
 
-.exp-table {
-  width: 100%;
-  border-collapse: collapse;
+function maybeUpdateExactExp(prefix, rowNum) {
+  const levelInput = document.getElementById(`${prefix}Level${rowNum}`);
+  const percentInput = document.getElementById(`${prefix}Percent${rowNum}`);
+  const expInput = document.getElementById(`${prefix}Exp${rowNum}`);
+
+  if (!levelInput || !percentInput || !expInput) return;
+
+  const level = Number(levelInput.value);
+  const percent = Number(percentInput.value);
+
+  if (!level || Number.isNaN(percent)) return;
+
+  const exactExp = calculateExactExpFromLevelPercent(level, percent);
+  if (exactExp !== "") {
+    expInput.value = exactExp;
+  }
 }
 
-.exp-table th,
-.exp-table td {
-  border: 1px solid #333;
-  padding: 10px;
-  vertical-align: top;
+function clampRate(value) {
+  const num = Number(value);
+  if (Number.isNaN(num)) return "";
+  return Math.max(0.1, Math.min(4, num));
 }
 
-.exp-table th {
-  background: #1a1a1a;
-  text-align: left;
+function syncRateFromSlider(rowNum) {
+  const slider = document.getElementById(`rateSlider${rowNum}`);
+  const input = document.getElementById(`rate${rowNum}`);
+  if (!slider || !input) return;
+
+  input.value = slider.value;
+  updateRow(rowNum);
 }
 
-.exp-table td {
-  background: #111;
+function syncRateFromInput(rowNum) {
+  const slider = document.getElementById(`rateSlider${rowNum}`);
+  const input = document.getElementById(`rate${rowNum}`);
+  if (!slider || !input) return;
+
+  const clamped = clampRate(input.value);
+  if (clamped === "") {
+    updateRow(rowNum);
+    return;
+  }
+
+  input.value = clamped;
+  slider.value = clamped;
+  updateRow(rowNum);
 }
 
-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 6px;
-  background: #1b1b1b;
-  border: none;
-  color: white;
+function updateRow(rowNum) {
+  const startExpInput = document.getElementById(`startExp${rowNum}`);
+  const endExpInput = document.getElementById(`endExp${rowNum}`);
+  const rateInput = document.getElementById(`rate${rowNum}`);
+  const gainedCell = document.getElementById(`gained${rowNum}`);
+  const feeCell = document.getElementById(`fee${rowNum}`);
+
+  if (!startExpInput || !endExpInput || !rateInput || !gainedCell || !feeCell) {
+    return;
+  }
+
+  const startExp = Number(startExpInput.value || 0);
+  const endExp = Number(endExpInput.value || 0);
+  const rate = Number(rateInput.value || 0);
+
+  if (startExp > 0 && endExp > 0) {
+    const gained = endExp - startExp;
+    gainedCell.textContent = gained.toLocaleString();
+
+    if (rate > 0) {
+      const fee = gained / rate;
+      feeCell.textContent = Math.ceil(fee).toLocaleString();
+    } else {
+      feeCell.textContent = "-";
+    }
+  } else {
+    gainedCell.textContent = "-";
+    feeCell.textContent = "-";
+  }
 }
 
-button {
-  padding: 6px 10px;
-  margin-right: 6px;
-  border: none;
-  background: white;
-  color: black;
-  cursor: pointer;
+async function setStart(rowNum) {
+  const ignInput = document.getElementById(`ign${rowNum}`);
+  const levelInput = document.getElementById(`startLevel${rowNum}`);
+  const expInput = document.getElementById(`startExp${rowNum}`);
+  const percentInput = document.getElementById(`startPercent${rowNum}`);
+
+  if (!ignInput || !levelInput || !expInput || !percentInput) {
+    alert(`Missing start fields for row ${rowNum}`);
+    return;
+  }
+
+  const ign = ignInput.value.trim();
+
+  if (!ign) {
+    alert("Enter IGN first");
+    return;
+  }
+
+  levelInput.value = "";
+  percentInput.value = "";
+  expInput.value = "";
+
+  try {
+    const result = await fetchExactExp(ign);
+
+    levelInput.value = result.level;
+    percentInput.value = result.percent;
+    expInput.value = result.exactExp;
+
+    updateRow(rowNum);
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
-button:hover {
-  background: #ddd;
+async function setEnd(rowNum) {
+  const ignInput = document.getElementById(`ign${rowNum}`);
+  const levelInput = document.getElementById(`endLevel${rowNum}`);
+  const expInput = document.getElementById(`endExp${rowNum}`);
+  const percentInput = document.getElementById(`endPercent${rowNum}`);
+
+  if (!ignInput || !levelInput || !expInput || !percentInput) {
+    alert(`Missing end fields for row ${rowNum}`);
+    return;
+  }
+
+  const ign = ignInput.value.trim();
+
+  if (!ign) {
+    alert("Enter IGN first");
+    return;
+  }
+
+  levelInput.value = "";
+  percentInput.value = "";
+  expInput.value = "";
+
+  try {
+    const result = await fetchExactExp(ign);
+
+    levelInput.value = result.level;
+    percentInput.value = result.percent;
+    expInput.value = result.exactExp;
+
+    updateRow(rowNum);
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
-.exp-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+function fetchStartAll() {
+  for (let i = 1; i <= 2; i++) {
+    const ignInput = document.getElementById(`ign${i}`);
+    if (!ignInput) continue;
+
+    const ign = ignInput.value.trim();
+    if (ign !== "") {
+      setStart(i);
+    }
+  }
 }
 
-.exp-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+function fetchEndAll() {
+  for (let i = 1; i <= 2; i++) {
+    const ignInput = document.getElementById(`ign${i}`);
+    if (!ignInput) continue;
+
+    const ign = ignInput.value.trim();
+    if (ign !== "") {
+      setEnd(i);
+    }
+  }
 }
 
-.exp-row label {
-  width: 60px;
-  font-size: 13px;
-  color: #bbb;
+function copyFee(row) {
+  const feeElement = document.getElementById(`fee${row}`);
+  if (!feeElement) return;
+
+  const feeText = feeElement.innerText;
+
+  if (!feeText || feeText === "-") {
+    alert("No fee to copy yet.");
+    return;
+  }
+
+  const cleanFee = feeText.replace(/,/g, "");
+  navigator.clipboard.writeText(cleanFee);
 }
 
-.exp-row input {
-  flex: 1;
-}
+document.addEventListener("DOMContentLoaded", () => {
+  for (let i = 1; i <= 2; i++) {
+    const startLevel = document.getElementById(`startLevel${i}`);
+    const startPercent = document.getElementById(`startPercent${i}`);
+    const startExp = document.getElementById(`startExp${i}`);
 
-.start-header,
-.end-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    const endLevel = document.getElementById(`endLevel${i}`);
+    const endPercent = document.getElementById(`endPercent${i}`);
+    const endExp = document.getElementById(`endExp${i}`);
 
-.calc-all-btn {
-  padding: 4px 8px;
-  font-size: 12px;
-}
+    const rate = document.getElementById(`rate${i}`);
+    const rateSlider = document.getElementById(`rateSlider${i}`);
 
-.rate-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+    startLevel?.addEventListener("input", () => {
+      maybeUpdateExactExp("start", i);
+      updateRow(i);
+    });
 
-.rate-box input[type="range"] {
-  width: 100%;
-}
+    startPercent?.addEventListener("input", () => {
+      maybeUpdateExactExp("start", i);
+      updateRow(i);
+    });
 
-.rate-box input[type="number"] {
-  width: 100%;
-}
+    startExp?.addEventListener("input", () => updateRow(i));
 
-.fee-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
+    endLevel?.addEventListener("input", () => {
+      maybeUpdateExactExp("end", i);
+      updateRow(i);
+    });
 
-.copy-btn {
-  font-size: 11px;
-  padding: 3px 6px;
-  cursor: pointer;
-}
+    endPercent?.addEventListener("input", () => {
+      maybeUpdateExactExp("end", i);
+      updateRow(i);
+    });
+
+    endExp?.addEventListener("input", () => updateRow(i));
+
+    rate?.addEventListener("input", () => syncRateFromInput(i));
+    rateSlider?.addEventListener("input", () => syncRateFromSlider(i));
+  }
+});
