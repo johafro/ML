@@ -6,11 +6,11 @@ async function fetchExactExp(name) {
   try {
     data = JSON.parse(text);
   } catch {
-    throw new Error(`API did not return valid JSON: ${text || "empty response"}`);
+    throw new Error(text || "API did not return valid JSON");
   }
 
   if (!response.ok) {
-    throw new Error(data.error || "Character not found");
+    throw new Error(data.details || data.error || "Character not found");
   }
 
   const level = Number(data.level);
