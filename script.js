@@ -6,6 +6,9 @@ async function fetchExactExp(name) {
   try {
     data = JSON.parse(text);
   } catch {
+    if (text.includes("503 Service Temporarily Unavailable")) {
+      throw new Error("MapleLegends API is temporarily unavailable. Please try again in a few seconds.");
+    }
     throw new Error(text || "API did not return valid JSON");
   }
 
@@ -188,26 +191,28 @@ async function setEnd(rowNum) {
   }
 }
 
-function fetchStartAll() {
+async function fetchStartAll() {
   for (let i = 1; i <= 2; i++) {
     const ignInput = document.getElementById(`ign${i}`);
     if (!ignInput) continue;
 
     const ign = ignInput.value.trim();
     if (ign !== "") {
-      setStart(i);
+      await setStart(i);
+      await new Promise(resolve => setTimeout(resolve, 800));
     }
   }
 }
 
-function fetchEndAll() {
+async function fetchEndAll() {
   for (let i = 1; i <= 2; i++) {
     const ignInput = document.getElementById(`ign${i}`);
     if (!ignInput) continue;
 
     const ign = ignInput.value.trim();
     if (ign !== "") {
-      setEnd(i);
+      await setEnd(i);
+      await new Promise(resolve => setTimeout(resolve, 800));
     }
   }
 }
