@@ -232,6 +232,60 @@ function copyFee(row) {
   navigator.clipboard.writeText(cleanFee);
 }
 
+function completeRow(rowNum) {
+  const row = document.getElementById(`row${rowNum}`);
+  const completedBody = document.getElementById("completed-body");
+
+  if (!row || !completedBody) return;
+
+  const clone = row.cloneNode(true);
+
+  clone.id = `completed-row${rowNum}-${Date.now()}`;
+
+  const buttons = clone.querySelectorAll("button");
+  buttons.forEach(btn => btn.remove());
+
+  const inputs = clone.querySelectorAll("input");
+  inputs.forEach(input => {
+    input.setAttribute("readonly", "readonly");
+    input.setAttribute("disabled", "disabled");
+  });
+
+  completedBody.appendChild(clone);
+
+  resetRow(rowNum);
+}
+
+function resetRow(rowNum) {
+  const ids = [
+    `ign${rowNum}`,
+    `startLevel${rowNum}`,
+    `startPercent${rowNum}`,
+    `startExp${rowNum}`,
+    `endLevel${rowNum}`,
+    `endPercent${rowNum}`,
+    `endExp${rowNum}`,
+    `rate${rowNum}`
+  ];
+
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  const rateSlider = document.getElementById(`rateSlider${rowNum}`);
+  if (rateSlider) rateSlider.value = "0.1";
+
+  const rateInput = document.getElementById(`rate${rowNum}`);
+  if (rateInput) rateInput.value = "0.1";
+
+  const gainedCell = document.getElementById(`gained${rowNum}`);
+  const feeCell = document.getElementById(`fee${rowNum}`);
+
+  if (gainedCell) gainedCell.textContent = "-";
+  if (feeCell) feeCell.textContent = "-";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   for (let i = 1; i <= 2; i++) {
     const startLevel = document.getElementById(`startLevel${i}`);
