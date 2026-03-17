@@ -485,14 +485,17 @@ function reattachAllListeners() {
       const key = ignInput.id.replace("ign", "");
       attachRowListeners(key);
     }
-  });
 
-  const completedFeeButtons = document.querySelectorAll("#completed-body .copy-btn");
-  completedFeeButtons.forEach((btn) => {
-    const feeBox = btn.closest(".fee-box");
-    const feeDiv = feeBox?.querySelector("div[id^='fee']");
-    if (feeDiv) {
-      btn.onclick = () => copyCompletedFee(feeDiv.id);
+    const feeBtn = row.querySelector("button[onclick*='copyCompletedFee']");
+    const feeDiv = row.querySelector("div[id^='fee']");
+    if (feeBtn && feeDiv) {
+      feeBtn.onclick = () => copyCompletedFee(feeDiv.id);
+    }
+
+    const paymentBtn = row.querySelector("button[id^='paymentBtn']");
+    if (paymentBtn) {
+      const completedKey = paymentBtn.id.replace("paymentBtn", "");
+      paymentBtn.onclick = () => markPaymentReceived(completedKey);
     }
   });
 }
@@ -891,6 +894,19 @@ function completeRow(rowKey) {
       <div class="fee-box">
         <div id="fee${key}">${feeText}</div>
         <button onclick="copyCompletedFee('fee${key}')" class="copy-btn">Copy</button>
+      </div>
+    </td>
+
+    <td>
+      <div class="fee-box">
+        <div id="statusText${key}" class="status-pending">Pending Payment</div>
+        <button
+          id="paymentBtn${key}"
+          onclick="markPaymentReceived('${key}')"
+          class="copy-btn"
+        >
+          Payment Received
+        </button>
       </div>
     </td>
   `;
