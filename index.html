@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Lordjojo/Johafro's Leech Calculator</title>
+  <title>Maple Leech Fee Tracker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="top-bar">
-    <h1>Lordjojo/Johafro's Leech Calculator</h1>
+    <h1>Maple Leech Fee Tracker</h1>
     <button class="undo-btn" onclick="undoLastAction()">Undo</button>
   </div>
 
@@ -27,42 +27,41 @@
         <th class="start-header">
           <div class="header-wrap">
             <span>Start EXP</span>
-            <button onclick="fetchStartAll()">Fetch All Start</button>
+            <button class="calc-all-btn" onclick="fetchStartAll()">Fetch All Start</button>
           </div>
         </th>
 
         <th class="end-header">
           <div class="header-wrap">
             <span>Current / End EXP</span>
-            <button onclick="fetchEndAll()">Fetch All End</button>
+            <button class="calc-all-btn" onclick="fetchEndAll()">Fetch All End</button>
           </div>
         </th>
 
-        <th>Time / EXP / EXP-Hr</th>
-        <th>Rate</th>
-        <th>Fee</th>
+        <th>Time Elapsed / EXP Gained</th>
+        <th>Rate (EXP / meso)</th>
+        <th>Fee (mesos)</th>
       </tr>
     </thead>
 
     <tbody id="active-body"></tbody>
   </table>
 
-  <div class="table-toolbar">
-    <button onclick="addRow()">+ Add Row</button>
+  <div class="table-toolbar below-table-toolbar">
+    <button class="row-btn" onclick="addRow()">+ Add Row</button>
   </div>
 
-  <h2 class="section-title">Completed Sessions</h2>
+  <h2 class="section-title completed-title">Completed Sessions</h2>
 
   <table class="exp-table">
     <thead>
       <tr>
         <th>Character</th>
         <th>Start EXP</th>
-        <th>End EXP</th>
-        <th>Time / EXP / EXP-Hr</th>
-        <th>Rate</th>
-        <th>Fee</th>
-        <th>Status</th>
+        <th>Current / End EXP</th>
+        <th>Time Elapsed / EXP Gained</th>
+        <th>Rate (EXP / meso)</th>
+        <th>Fee (mesos)</th>
       </tr>
     </thead>
     <tbody id="completed-body"></tbody>
