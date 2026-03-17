@@ -41,6 +41,7 @@ function undoLastAction() {
   completedCounter = lastUndoSnapshot.completedCounter;
 
   reattachAllListeners();
+  refreshAllRows();
   updateActiveEarnings();
   saveData();
 
@@ -82,32 +83,6 @@ function restoreData() {
   completedCounter = Number(localStorage.getItem("completedCounter") || 0);
 }
 
-function reattachAllListeners() {
-  const activeRows = document.querySelectorAll("#active-body tr[id^='row']");
-  activeRows.forEach((row) => {
-    const key = row.id.replace("row", "");
-    attachRowListeners(key);
-  });
-
-  const completedRows = document.querySelectorAll("#completed-body tr");
-  completedRows.forEach((row) => {
-    const ignInput = row.querySelector("input[id^='ign']");
-    if (ignInput) {
-      const key = ignInput.id.replace("ign", "");
-      attachRowListeners(key);
-    }
-  });
-
-  const completedFeeButtons = document.querySelectorAll("#completed-body .copy-btn");
-  completedFeeButtons.forEach((btn) => {
-    const feeBox = btn.closest(".fee-box");
-    const feeDiv = feeBox?.querySelector("div[id^='fee']");
-    if (feeDiv) {
-      btn.onclick = () => copyCompletedFee(feeDiv.id);
-    }
-  });
-}
-
 function getCurrentTimestamp() {
   const now = new Date();
 
@@ -138,6 +113,17 @@ function formatDuration(ms) {
   const seconds = totalSeconds % 60;
 
   return `${hours}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
+}
+
+function setTimestampNow(timeInputId) {
+  const timeInput = document.getElementById(timeInputId);
+  if (!timeInput) return;
+
+  captureUndoState();
+  timeInput.value = getCurrentTimestamp();
+
+  const rowKey = timeInputId.replace(/^startTime|^endTime/, "");
+  updateRow(rowKey);
 }
 
 async function fetchExactExp(name) {
@@ -173,7 +159,7 @@ async function fetchExactExp(name) {
     throw new Error(`Invalid EXP % returned: ${JSON.stringify(data.exp)}`);
   }
 
-  const row = expTable[level];
+  const row = window.expTable?.[level];
 
   if (!row) {
     throw new Error(`EXP table missing level ${level}`);
@@ -189,7 +175,7 @@ async function fetchExactExp(name) {
 }
 
 function calculateExactExpFromLevelPercent(level, percent) {
-  const row = expTable[level];
+  const row = window.expTable?.[level];
   if (!row) return "";
 
   const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
@@ -354,8 +340,15 @@ function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTime
   }
 
   let expGainedText = "-";
+  let gained = null;
+
   if (startExp > 0 && endExp > 0) {
-    expGainedText = (endExp - startExp).toLocaleString();
+    gained = endExp - startExp;
+    if (gained >= 0) {
+      expGainedText = gained.toLocaleString();
+    } else {
+      expGainedText = "-";
+    }
   }
 
   gainedCell.innerHTML = `
@@ -363,15 +356,9 @@ function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTime
     <div>EXP: ${expGainedText}</div>
   `;
 
-  if (startExp > 0 && endExp > 0) {
-    const gained = endExp - startExp;
-
-    if (rate > 0) {
-      const fee = gained / rate;
-      feeCell.textContent = Math.ceil(fee).toLocaleString();
-    } else {
-      feeCell.textContent = "-";
-    }
+  if (gained !== null && gained >= 0 && rate > 0) {
+    const fee = gained / rate;
+    feeCell.textContent = Math.ceil(fee).toLocaleString();
   } else {
     feeCell.textContent = "-";
   }
@@ -392,7 +379,33 @@ function updateRow(rowKey) {
   );
 }
 
+function refreshAllRows() {
+  const activeRows = document.querySelectorAll("#active-body tr[id^='row']");
+  activeRows.forEach((row) => {
+    const key = row.id.replace("row", "");
+    updateRow(key);
+  });
+
+  const completedRows = document.querySelectorAll("#completed-body tr");
+  completedRows.forEach((row) => {
+    const ignInput = row.querySelector("input[id^='ign']");
+    if (!ignInput) return;
+    const key = ignInput.id.replace("ign", "");
+    updateRowByIds(
+      `startExp${key}`,
+      `endExp${key}`,
+      `rate${key}`,
+      `gained${key}`,
+      `fee${key}`,
+      `startTime${key}`,
+      `endTime${key}`
+    );
+  });
+}
+
 function attachRowListeners(rowKey) {
+  const ignId = `ign${rowKey}`;
+
   const startTimeId = `startTime${rowKey}`;
   const startLevelId = `startLevel${rowKey}`;
   const startPercentId = `startPercent${rowKey}`;
@@ -407,6 +420,10 @@ function attachRowListeners(rowKey) {
   const rateSliderId = `rateSlider${rowKey}`;
   const gainedId = `gained${rowKey}`;
   const feeId = `fee${rowKey}`;
+
+  document.getElementById(ignId)?.addEventListener("input", () => {
+    saveData();
+  });
 
   document.getElementById(startTimeId)?.addEventListener("input", () => {
     updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
@@ -454,6 +471,56 @@ function attachRowListeners(rowKey) {
   });
 }
 
+function reattachAllListeners() {
+  const activeRows = document.querySelectorAll("#active-body tr[id^='row']");
+  activeRows.forEach((row) => {
+    const key = row.id.replace("row", "");
+    attachRowListeners(key);
+  });
+
+  const completedRows = document.querySelectorAll("#completed-body tr");
+  completedRows.forEach((row) => {
+    const ignInput = row.querySelector("input[id^='ign']");
+    if (ignInput) {
+      const key = ignInput.id.replace("ign", "");
+      attachRowListeners(key);
+    }
+  });
+
+  const completedFeeButtons = document.querySelectorAll("#completed-body .copy-btn");
+  completedFeeButtons.forEach((btn) => {
+    const feeBox = btn.closest(".fee-box");
+    const feeDiv = feeBox?.querySelector("div[id^='fee']");
+    if (feeDiv) {
+      btn.onclick = () => copyCompletedFee(feeDiv.id);
+    }
+  });
+}
+
+function buildTimeRowHtml(labelText, inputId) {
+  return `
+    <div class="exp-row">
+      <label>${labelText}</label>
+      <div class="time-input-wrap">
+        <input id="${inputId}" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+        <button type="button" class="now-btn" onclick="setTimestampNow('${inputId}')">Now</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildTimeRowHtmlWithValue(labelText, inputId, value) {
+  return `
+    <div class="exp-row">
+      <label>${labelText}</label>
+      <div class="time-input-wrap">
+        <input id="${inputId}" type="text" value="${value}">
+        <button type="button" class="now-btn" onclick="setTimestampNow('${inputId}')">Now</button>
+      </div>
+    </div>
+  `;
+}
+
 function buildActiveRowHtml(rowKey) {
   return `
     <tr id="row${rowKey}">
@@ -471,10 +538,7 @@ function buildActiveRowHtml(rowKey) {
 
       <td>
         <div class="exp-box">
-          <div class="exp-row">
-            <label>Time</label>
-            <input id="startTime${rowKey}" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
-          </div>
+          ${buildTimeRowHtml("Time", `startTime${rowKey}`)}
           <div class="exp-row">
             <label>Level</label>
             <input id="startLevel${rowKey}" type="number">
@@ -492,10 +556,7 @@ function buildActiveRowHtml(rowKey) {
 
       <td>
         <div class="exp-box">
-          <div class="exp-row">
-            <label>Time</label>
-            <input id="endTime${rowKey}" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
-          </div>
+          ${buildTimeRowHtml("Time", `endTime${rowKey}`)}
           <div class="exp-row">
             <label>Level</label>
             <input id="endLevel${rowKey}" type="number">
@@ -583,7 +644,9 @@ function removeRow(rowKey) {
   saveData();
 }
 
-async function setStart(rowKey) {
+async function setStart(rowKey, options = {}) {
+  const { skipUndo = false } = options;
+
   const ignInput = document.getElementById(`ign${rowKey}`);
   const timeInput = document.getElementById(`startTime${rowKey}`);
   const levelInput = document.getElementById(`startLevel${rowKey}`);
@@ -601,7 +664,9 @@ async function setStart(rowKey) {
     return;
   }
 
-  captureUndoState();
+  if (!skipUndo) {
+    captureUndoState();
+  }
 
   try {
     const result = await fetchExactExp(ign);
@@ -617,7 +682,9 @@ async function setStart(rowKey) {
   }
 }
 
-async function setEnd(rowKey) {
+async function setEnd(rowKey, options = {}) {
+  const { skipUndo = false } = options;
+
   const ignInput = document.getElementById(`ign${rowKey}`);
   const timeInput = document.getElementById(`endTime${rowKey}`);
   const levelInput = document.getElementById(`endLevel${rowKey}`);
@@ -635,7 +702,9 @@ async function setEnd(rowKey) {
     return;
   }
 
-  captureUndoState();
+  if (!skipUndo) {
+    captureUndoState();
+  }
 
   try {
     const result = await fetchExactExp(ign);
@@ -658,8 +727,8 @@ async function fetchStartAll() {
     const rowKey = row.id.replace("row", "");
     const ign = document.getElementById(`ign${rowKey}`)?.value.trim();
     if (ign) {
-      await setStart(rowKey);
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await setStart(rowKey, { skipUndo: true });
+      await new Promise((resolve) => setTimeout(resolve, 800));
     }
   }
 }
@@ -672,8 +741,8 @@ async function fetchEndAll() {
     const rowKey = row.id.replace("row", "");
     const ign = document.getElementById(`ign${rowKey}`)?.value.trim();
     if (ign) {
-      await setEnd(rowKey);
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await setEnd(rowKey, { skipUndo: true });
+      await new Promise((resolve) => setTimeout(resolve, 800));
     }
   }
 }
@@ -740,10 +809,7 @@ function completeRow(rowKey) {
 
     <td>
       <div class="exp-box">
-        <div class="exp-row">
-          <label>Time</label>
-          <input id="startTime${key}" type="text" value="${startTime}">
-        </div>
+        ${buildTimeRowHtmlWithValue("Time", `startTime${key}`, startTime)}
         <div class="exp-row">
           <label>Level</label>
           <input id="startLevel${key}" type="number" value="${startLevel}">
@@ -761,10 +827,7 @@ function completeRow(rowKey) {
 
     <td>
       <div class="exp-box">
-        <div class="exp-row">
-          <label>Time</label>
-          <input id="endTime${key}" type="text" value="${endTime}">
-        </div>
+        ${buildTimeRowHtmlWithValue("Time", `endTime${key}`, endTime)}
         <div class="exp-row">
           <label>Level</label>
           <input id="endLevel${key}" type="number" value="${endLevel}">
@@ -835,7 +898,13 @@ function removeCompletedFromActive(rowKey) {
   activeRowCount -= 1;
 
   if (activeRowCount === 0) {
-    addRow();
+    const activeBody = document.getElementById("active-body");
+    if (!activeBody) return;
+
+    const newRowKey = nextRowId++;
+    activeBody.insertAdjacentHTML("beforeend", buildActiveRowHtml(newRowKey));
+    attachRowListeners(newRowKey);
+    activeRowCount += 1;
   }
 
   updateActiveEarnings();
@@ -868,9 +937,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const hasActiveRows = document.querySelectorAll("#active-body tr[id^='row']").length > 0;
 
   if (!hasActiveRows) {
-    addRow();
+    const activeBody = document.getElementById("active-body");
+    if (activeBody) {
+      const rowKey = nextRowId++;
+      activeBody.insertAdjacentHTML("beforeend", buildActiveRowHtml(rowKey));
+      attachRowListeners(rowKey);
+      activeRowCount = 1;
+      saveData();
+    }
   } else {
     reattachAllListeners();
+    refreshAllRows();
     updateActiveEarnings();
   }
 });
