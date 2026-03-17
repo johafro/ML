@@ -33,14 +33,20 @@
         <th>EXP Gained</th>
         <th>Rate (EXP / meso)</th>
         <th>Fee (mesos)</th>
-        <th>Actions</th>
       </tr>
     </thead>
 
-    <tbody>
-      <tr>
+    <tbody id="active-body">
+      <tr id="row1">
         <td>
-          <input id="ign1" placeholder="Character 1">
+          <div class="character-box">
+            <input id="ign1" placeholder="Character 1">
+            <div class="character-actions">
+              <button onclick="setStart(1)">Fetch Start</button>
+              <button onclick="setEnd(1)">Fetch End</button>
+              <button onclick="completeRow(1)">Completed</button>
+            </div>
+          </div>
         </td>
 
         <td>
@@ -106,16 +112,18 @@
             <button onclick="copyFee(1)" class="copy-btn">Copy</button>
           </div>
         </td>
-
-        <td>
-          <button onclick="setStart(1)">Fetch Start</button>
-          <button onclick="setEnd(1)">Fetch End</button>
-        </td>
       </tr>
 
-      <tr>
+      <tr id="row2">
         <td>
-          <input id="ign2" placeholder="Character 2">
+          <div class="character-box">
+            <input id="ign2" placeholder="Character 2">
+            <div class="character-actions">
+              <button onclick="setStart(2)">Fetch Start</button>
+              <button onclick="setEnd(2)">Fetch End</button>
+              <button onclick="completeRow(2)">Completed</button>
+            </div>
+          </div>
         </td>
 
         <td>
@@ -181,13 +189,24 @@
             <button onclick="copyFee(2)" class="copy-btn">Copy</button>
           </div>
         </td>
-
-        <td>
-          <button onclick="setStart(2)">Fetch Start</button>
-          <button onclick="setEnd(2)">Fetch End</button>
-        </td>
       </tr>
     </tbody>
+  </table>
+
+  <h2 class="completed-title">Completed Sessions</h2>
+
+  <table class="exp-table">
+    <thead>
+      <tr>
+        <th>Character</th>
+        <th>Start EXP</th>
+        <th>Current / End EXP</th>
+        <th>EXP Gained</th>
+        <th>Rate (EXP / meso)</th>
+        <th>Fee (mesos)</th>
+      </tr>
+    </thead>
+    <tbody id="completed-body"></tbody>
   </table>
 
   <script src="exptable.js"></script>
