@@ -10,21 +10,44 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
 h1 {
-  margin: 0;
+  margin: 0 0 20px 0;
 }
 
-.section-title {
-  margin-top: 20px;
+.undo-btn {
+  margin-right: 0;
+}
+
+h2.section-title {
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+h2.completed-title {
+  margin-top: 32px;
+  margin-bottom: 12px;
 }
 
 .earnings-box {
-  margin: 10px 0;
-  padding: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
   background: #111;
   border: 1px solid #333;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-toolbar {
+  margin-top: 12px;
+}
+
+.below-table-toolbar {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .exp-table {
@@ -36,10 +59,12 @@ h1 {
 .exp-table td {
   border: 1px solid #333;
   padding: 10px;
+  vertical-align: top;
 }
 
 .exp-table th {
   background: #1a1a1a;
+  text-align: left;
 }
 
 .exp-table td {
@@ -48,16 +73,23 @@ h1 {
 
 input {
   width: 100%;
+  box-sizing: border-box;
   padding: 6px;
   background: #1b1b1b;
   border: none;
   color: white;
 }
 
+input[disabled] {
+  opacity: 0.8;
+}
+
 button {
   padding: 6px 10px;
-  background: white;
+  margin-right: 6px;
   border: none;
+  background: white;
+  color: black;
   cursor: pointer;
 }
 
@@ -65,12 +97,122 @@ button:hover {
   background: #ddd;
 }
 
-.status-pending {
-  color: orange;
-  font-weight: bold;
+.exp-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.status-paid {
-  color: #4caf50;
-  font-weight: bold;
+.exp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exp-row label {
+  width: 60px;
+  font-size: 13px;
+  color: #bbb;
+  flex-shrink: 0;
+}
+
+.exp-row input {
+  flex: 1;
+}
+
+.exp-row input[type="text"] {
+  flex: 1;
+}
+
+.time-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.time-input-wrap input {
+  flex: 1;
+}
+
+.now-btn {
+  padding: 5px 8px;
+  font-size: 12px;
+  margin-right: 0;
+  white-space: nowrap;
+}
+
+.header-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.start-header,
+.end-header {
+  min-width: 320px;
+}
+
+.calc-all-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  margin-right: 0;
+}
+
+.rate-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rate-box input[type="range"] {
+  width: 100%;
+}
+
+.rate-box input[type="number"] {
+  width: 100%;
+}
+
+.fee-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.copy-btn {
+  font-size: 11px;
+  padding: 3px 6px;
+  cursor: pointer;
+  margin-right: 0;
+}
+
+.character-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.character-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.character-actions button {
+  margin-right: 0;
+}
+
+.row-btn {
+  margin-right: 0;
+}
+
+.remove-btn {
+  background: #444;
+  color: white;
+}
+
+.remove-btn:hover {
+  background: #666;
 }
