@@ -10,6 +10,11 @@ h1 {
   margin-bottom: 20px;
 }
 
+h2.completed-title {
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
 .exp-table {
   width: 100%;
   border-collapse: collapse;
@@ -38,6 +43,10 @@ input {
   background: #1b1b1b;
   border: none;
   color: white;
+}
+
+input[disabled] {
+  opacity: 0.8;
 }
 
 button {
@@ -118,5 +127,21 @@ button:hover {
   font-size: 11px;
   padding: 3px 6px;
   cursor: pointer;
+  margin-right: 0;
+}
+
+.character-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.character-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.character-actions button {
   margin-right: 0;
 }
