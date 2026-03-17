@@ -134,14 +134,26 @@ function updateRow(rowKey) {
   }
 
   let expText = "-";
+  let expPerHourText = "-";
   let gained = endExp - startExp;
 
   if (gained > 0) {
     expText = gained.toLocaleString();
+
+    if (startTime && endTime) {
+      const durationMs = endTime - startTime;
+
+      if (durationMs > 0) {
+        const expPerHour = gained * (3600000 / durationMs);
+        expPerHourText = `${Math.round(expPerHour).toLocaleString()}/hr`;
+      }
+    }
   }
 
   document.getElementById(`gained${rowKey}`).innerHTML =
-    `<div>Time: ${timeText}</div><div>EXP: ${expText}</div>`;
+    `<div>Time: ${timeText}</div>
+     <div>EXP: ${expText}</div>
+     <div>EXP/Hr: ${expPerHourText}</div>`;
 
   if (gained > 0 && rate > 0) {
     document.getElementById(`fee${rowKey}`).innerText =
@@ -171,7 +183,7 @@ function updateActiveEarnings() {
   }
 }
 
-/* ===================== ADD / REMOVE ===================== */
+/* ===================== ADD ROW ===================== */
 function addRow() {
   if (activeRowCount >= MAX_ACTIVE_ROWS) return alert("Max 10 rows");
 
@@ -205,7 +217,11 @@ function addRow() {
 <input id="endExp${key}">
 </td>
 
-<td id="gained${key}">-</td>
+<td id="gained${key}">
+<div>Time: -</div>
+<div>EXP: -</div>
+<div>EXP/Hr: -</div>
+</td>
 
 <td>
 <input id="rate${key}" value="1">
@@ -221,109 +237,12 @@ function addRow() {
   activeRowCount++;
 }
 
-/* ===================== FETCH ===================== */
-async function setStart(key) {
-  captureUndoState();
-  const ign = document.getElementById(`ign${key}`).value;
-  const res = await fetchExactExp(ign);
-
-  document.getElementById(`startTime${key}`).value = getCurrentTimestamp();
-  document.getElementById(`startLevel${key}`).value = res.level;
-  document.getElementById(`startPercent${key}`).value = res.percent;
-  document.getElementById(`startExp${key}`).value = res.exactExp;
-
-  updateRow(key);
-}
-
-async function setEnd(key) {
-  captureUndoState();
-  const ign = document.getElementById(`ign${key}`).value;
-  const res = await fetchExactExp(ign);
-
-  document.getElementById(`endTime${key}`).value = getCurrentTimestamp();
-  document.getElementById(`endLevel${key}`).value = res.level;
-  document.getElementById(`endPercent${key}`).value = res.percent;
-  document.getElementById(`endExp${key}`).value = res.exactExp;
-
-  updateRow(key);
-}
-
-/* ===================== FETCH ALL ===================== */
-function hasAnyStartData() {
-  return [...document.querySelectorAll("[id^='startExp']")]
-    .some(el => el.value);
-}
-
-async function fetchStartAll() {
-  if (hasAnyStartData()) {
-    if (!confirm("Confirm Fetch All Start? This will overwrite all current Start Data")) return;
+/* ===================== COPY ===================== */
+function copyFee(key) {
+  const fee = document.getElementById(`fee${key}`).innerText;
+  if (fee && fee !== "-") {
+    navigator.clipboard.writeText(fee.replace(/,/g, ""));
   }
-
-  captureUndoState();
-
-  for (const row of document.querySelectorAll("#active-body tr")) {
-    const key = row.id.replace("row", "");
-    if (document.getElementById(`ign${key}`).value) {
-      await setStart(key);
-    }
-  }
-}
-
-async function fetchEndAll() {
-  captureUndoState();
-
-  for (const row of document.querySelectorAll("#active-body tr")) {
-    const key = row.id.replace("row", "");
-    if (document.getElementById(`ign${key}`).value) {
-      await setEnd(key);
-    }
-  }
-}
-
-/* ===================== COMPLETE ===================== */
-function completeRow(key) {
-  captureUndoState();
-
-  completedCounter++;
-  const cKey = "c" + completedCounter;
-
-  const row = document.getElementById(`row${key}`);
-
-  document.getElementById("completed-body").insertAdjacentHTML("beforeend", `
-<tr>
-<td>${document.getElementById(`ign${key}`).value}</td>
-<td>...</td>
-<td>...</td>
-<td id="gained${cKey}">${document.getElementById(`gained${key}`).innerHTML}</td>
-<td>${document.getElementById(`rate${key}`).value}</td>
-<td>${document.getElementById(`fee${key}`).innerText}</td>
-<td>
-<div id="statusText${cKey}" class="status-pending">Pending Payment</div>
-<button id="paymentBtn${cKey}" onclick="markPaymentReceived('${cKey}')">Payment Received</button>
-</td>
-</tr>
-`);
-
-  row.remove();
-}
-
-/* ===================== PAYMENT ===================== */
-function markPaymentReceived(key) {
-  const status = document.getElementById(`statusText${key}`);
-  const btn = document.getElementById(`paymentBtn${key}`);
-
-  if (status.textContent === "Payment Received") return;
-
-  captureUndoState();
-
-  status.textContent = "Payment Received";
-  status.classList.remove("status-pending");
-  status.classList.add("status-paid");
-
-  btn.disabled = true;
-  btn.textContent = "Paid";
-
-  saveData();
 }
 
 /* ===================== INIT ===================== */
