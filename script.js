@@ -340,20 +340,33 @@ function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTime
   }
 
   let expGainedText = "-";
+  let expPerHourText = "-";
   let gained = null;
 
   if (startExp > 0 && endExp > 0) {
     gained = endExp - startExp;
+
     if (gained >= 0) {
       expGainedText = gained.toLocaleString();
+
+      if (startDate && endDate) {
+        const durationMs = endDate.getTime() - startDate.getTime();
+
+        if (durationMs > 0) {
+          const expPerHour = gained * (3600000 / durationMs);
+          expPerHourText = `${Math.round(expPerHour).toLocaleString()}/hr`;
+        }
+      }
     } else {
       expGainedText = "-";
+      expPerHourText = "-";
     }
   }
 
   gainedCell.innerHTML = `
     <div>Time: ${timeElapsedText}</div>
     <div>EXP: ${expGainedText}</div>
+    <div>EXP/Hr: ${expPerHourText}</div>
   `;
 
   if (gained !== null && gained >= 0 && rate > 0) {
@@ -497,6 +510,12 @@ function reattachAllListeners() {
       const completedKey = paymentBtn.id.replace("paymentBtn", "");
       paymentBtn.onclick = () => markPaymentReceived(completedKey);
     }
+
+    const notPaidBtn = row.querySelector("button[id^='notPaidBtn']");
+    if (notPaidBtn) {
+      const completedKey = notPaidBtn.id.replace("notPaidBtn", "");
+      notPaidBtn.onclick = () => markPaymentPending(completedKey);
+    }
   });
 }
 
@@ -578,6 +597,7 @@ function buildActiveRowHtml(rowKey) {
       <td id="gained${rowKey}">
         <div>Time: -</div>
         <div>EXP: -</div>
+        <div>EXP/Hr: -</div>
       </td>
 
       <td>
@@ -779,6 +799,7 @@ function copyCompletedFee(feeId) {
 function markPaymentReceived(completedKey) {
   const statusText = document.getElementById(`statusText${completedKey}`);
   const paymentBtn = document.getElementById(`paymentBtn${completedKey}`);
+  const notPaidBtn = document.getElementById(`notPaidBtn${completedKey}`);
 
   if (!statusText) return;
   if (statusText.textContent === "Payment Received") return;
@@ -792,6 +813,36 @@ function markPaymentReceived(completedKey) {
   if (paymentBtn) {
     paymentBtn.disabled = true;
     paymentBtn.textContent = "Paid";
+  }
+
+  if (notPaidBtn) {
+    notPaidBtn.disabled = false;
+  }
+
+  saveData();
+}
+
+function markPaymentPending(completedKey) {
+  const statusText = document.getElementById(`statusText${completedKey}`);
+  const paymentBtn = document.getElementById(`paymentBtn${completedKey}`);
+  const notPaidBtn = document.getElementById(`notPaidBtn${completedKey}`);
+
+  if (!statusText) return;
+  if (statusText.textContent === "Pending Payment") return;
+
+  captureUndoState();
+
+  statusText.textContent = "Pending Payment";
+  statusText.classList.remove("status-paid");
+  statusText.classList.add("status-pending");
+
+  if (paymentBtn) {
+    paymentBtn.disabled = false;
+    paymentBtn.textContent = "Payment Received";
+  }
+
+  if (notPaidBtn) {
+    notPaidBtn.disabled = true;
   }
 
   saveData();
@@ -821,6 +872,7 @@ function completeRow(rowKey) {
   const gainedHtml = document.getElementById(`gained${rowKey}`)?.innerHTML || `
     <div>Time: -</div>
     <div>EXP: -</div>
+    <div>EXP/Hr: -</div>
   `;
 
   const tr = document.createElement("tr");
@@ -906,6 +958,14 @@ function completeRow(rowKey) {
           class="copy-btn"
         >
           Payment Received
+        </button>
+        <button
+          id="notPaidBtn${key}"
+          onclick="markPaymentPending('${key}')"
+          class="copy-btn"
+          disabled
+        >
+          Not Paid
         </button>
       </div>
     </td>
