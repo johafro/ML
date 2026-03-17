@@ -216,3 +216,13 @@ button:hover {
 .remove-btn:hover {
   background: #666;
 }
+
+.status-pending {
+  color: #ffb347;
+  font-weight: bold;
+}
+
+.status-paid {
+  color: #4caf50;
+  font-weight: bold;
+}
