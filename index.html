@@ -7,9 +7,17 @@
 </head>
 <body>
 
-  <h1>Maple Leech Fee Tracker</h1>
+  <div class="top-bar">
+    <h1>Maple Leech Fee Tracker</h1>
+    <button class="undo-btn" onclick="undoLastAction()">Undo</button>
+  </div>
 
   <h2 class="section-title">Active Sessions</h2>
+
+  <div class="earnings-box">
+    <span>Active Session Earnings:</span>
+    <strong id="active-earnings">0</strong>
+  </div>
 
   <div class="table-toolbar">
     <button class="row-btn" onclick="addRow()">+ Add Row</button>
@@ -23,14 +31,14 @@
         <th class="start-header">
           <div class="header-wrap">
             <span>Start EXP</span>
-            <button class="calc-all-btn" onclick="fetchStartAll()">Calc. All Start</button>
+            <button class="calc-all-btn" onclick="fetchStartAll()">Fetch All Start</button>
           </div>
         </th>
 
         <th class="end-header">
           <div class="header-wrap">
             <span>Current / End EXP</span>
-            <button class="calc-all-btn" onclick="fetchEndAll()">Calc. All End</button>
+            <button class="calc-all-btn" onclick="fetchEndAll()">Fetch All End</button>
           </div>
         </th>
 
