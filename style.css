@@ -10,6 +10,11 @@ h1 {
   margin-bottom: 20px;
 }
 
+h2.section-title {
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
 h2.completed-title {
   margin-top: 32px;
   margin-bottom: 12px;
@@ -144,4 +149,21 @@ button:hover {
 
 .character-actions button {
   margin-right: 0;
+}
+
+.table-toolbar {
+  margin-bottom: 12px;
+}
+
+.row-btn {
+  margin-right: 0;
+}
+
+.remove-btn {
+  background: #444;
+  color: white;
+}
+
+.remove-btn:hover {
+  background: #666;
 }
