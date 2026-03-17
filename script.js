@@ -2,6 +2,120 @@ let completedCounter = 0;
 let activeRowCount = 0;
 let nextRowId = 1;
 const MAX_ACTIVE_ROWS = 10;
+let lastUndoSnapshot = null;
+
+function saveUndoSnapshot() {
+  const activeBody = document.getElementById("active-body");
+  const completedBody = document.getElementById("completed-body");
+
+  if (!activeBody || !completedBody) return;
+
+  lastUndoSnapshot = {
+    activeHTML: activeBody.innerHTML,
+    completedHTML: completedBody.innerHTML,
+    activeRowCount,
+    nextRowId,
+    completedCounter
+  };
+}
+
+function undoLastAction() {
+  if (!lastUndoSnapshot) {
+    alert("Nothing to undo.");
+    return;
+  }
+
+  const activeBody = document.getElementById("active-body");
+  const completedBody = document.getElementById("completed-body");
+
+  if (!activeBody || !completedBody) return;
+
+  activeBody.innerHTML = lastUndoSnapshot.activeHTML;
+  completedBody.innerHTML = lastUndoSnapshot.completedHTML;
+  activeRowCount = lastUndoSnapshot.activeRowCount;
+  nextRowId = lastUndoSnapshot.nextRowId;
+  completedCounter = lastUndoSnapshot.completedCounter;
+
+  reattachAllListeners();
+  updateActiveEarnings();
+  saveData();
+
+  lastUndoSnapshot = null;
+}
+
+function saveData() {
+  const activeBody = document.getElementById("active-body");
+  const completedBody = document.getElementById("completed-body");
+
+  if (!activeBody || !completedBody) return;
+
+  localStorage.setItem("activeSessions", activeBody.innerHTML);
+  localStorage.setItem("completedSessions", completedBody.innerHTML);
+  localStorage.setItem("activeRowCount", String(activeRowCount));
+  localStorage.setItem("nextRowId", String(nextRowId));
+  localStorage.setItem("completedCounter", String(completedCounter));
+}
+
+function restoreData() {
+  const activeBody = document.getElementById("active-body");
+  const completedBody = document.getElementById("completed-body");
+
+  if (!activeBody || !completedBody) return;
+
+  const activeSaved = localStorage.getItem("activeSessions");
+  const completedSaved = localStorage.getItem("completedSessions");
+
+  if (activeSaved) {
+    activeBody.innerHTML = activeSaved;
+  }
+
+  if (completedSaved) {
+    completedBody.innerHTML = completedSaved;
+  }
+
+  activeRowCount = Number(localStorage.getItem("activeRowCount") || 0);
+  nextRowId = Number(localStorage.getItem("nextRowId") || 1);
+  completedCounter = Number(localStorage.getItem("completedCounter") || 0);
+}
+
+function reattachAllListeners() {
+  const activeRows = document.querySelectorAll("#active-body tr[id^='row']");
+  activeRows.forEach((row) => {
+    const key = row.id.replace("row", "");
+    attachRowListeners(key);
+  });
+
+  const completedRows = document.querySelectorAll("#completed-body tr");
+  completedRows.forEach((row) => {
+    const ignInput = row.querySelector("input[id^='ign']");
+    if (ignInput) {
+      const key = ignInput.id.replace("ign", "");
+      attachRowListeners(key);
+    }
+  });
+
+  const completedFeeButtons = document.querySelectorAll("#completed-body .copy-btn");
+  completedFeeButtons.forEach((btn) => {
+    const feeBox = btn.closest(".fee-box");
+    const feeDiv = feeBox?.querySelector("div[id^='fee']");
+    if (feeDiv) {
+      btn.onclick = () => copyCompletedFee(feeDiv.id);
+    }
+  });
+}
+
+function getCurrentTimestamp() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
 async function fetchExactExp(name) {
   const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
@@ -31,7 +145,11 @@ async function fetchExactExp(name) {
 
   const exactExp = Math.floor(row.acc + row.next * (percent / 100));
 
-  return { level, percent, exactExp };
+  return {
+    level,
+    percent,
+    exactExp
+  };
 }
 
 function calculateExactExpFromLevelPercent(level, percent) {
@@ -46,6 +164,44 @@ function clampRate(value) {
   const num = Number(value);
   if (Number.isNaN(num)) return "";
   return Math.max(0.1, Math.min(4, num));
+}
+
+function getAutoRateFromLevel(level) {
+  const lvl = Number(level);
+
+  if (lvl >= 10 && lvl <= 19) return 0.009;
+  if (lvl >= 20 && lvl <= 29) return 0.035;
+  if (lvl >= 30 && lvl <= 35) return 0.05;
+  if (lvl >= 36 && lvl <= 39) return 0.06;
+  if (lvl >= 40 && lvl <= 42) return 0.07;
+  if (lvl >= 43 && lvl <= 49) return 0.1;
+  if (lvl >= 50 && lvl <= 52) return 0.15;
+  if (lvl >= 53 && lvl <= 54) return 0.16;
+  if (lvl >= 55 && lvl <= 57) return 0.17;
+  if (lvl >= 58 && lvl <= 64) return 0.18;
+  if (lvl >= 65 && lvl <= 70) return 0.42;
+  if (lvl >= 71 && lvl <= 74) return 0.5;
+  if (lvl >= 75 && lvl <= 81) return 1.1;
+  if (lvl >= 82 && lvl <= 89) return 2;
+  if (lvl >= 90 && lvl <= 99) return 2.2;
+  if (lvl >= 100 && lvl <= 104) return 2.5;
+  if (lvl >= 105) return 3.3;
+
+  return null;
+}
+
+function applyAutoRate(rowKey) {
+  const levelInput = document.getElementById(`startLevel${rowKey}`);
+  const rateInput = document.getElementById(`rate${rowKey}`);
+  const rateSlider = document.getElementById(`rateSlider${rowKey}`);
+
+  if (!levelInput || !rateInput || !rateSlider) return;
+
+  const autoRate = getAutoRateFromLevel(levelInput.value);
+  if (autoRate === null) return;
+
+  rateInput.value = autoRate;
+  rateSlider.value = autoRate;
 }
 
 function maybeUpdateExactExpByIds(levelId, percentId, expId) {
@@ -66,43 +222,24 @@ function maybeUpdateExactExpByIds(levelId, percentId, expId) {
   }
 }
 
-function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId) {
-  const startExpInput = document.getElementById(startExpId);
-  const endExpInput = document.getElementById(endExpId);
-  const rateInput = document.getElementById(rateId);
-  const gainedCell = document.getElementById(gainedId);
-  const feeCell = document.getElementById(feeId);
+function updateActiveEarnings() {
+  const activeBody = document.getElementById("active-body");
+  const earningsEl = document.getElementById("active-earnings");
 
-  if (!startExpInput || !endExpInput || !rateInput || !gainedCell || !feeCell) return;
+  if (!activeBody || !earningsEl) return;
 
-  const startExp = Number(startExpInput.value || 0);
-  const endExp = Number(endExpInput.value || 0);
-  const rate = Number(rateInput.value || 0);
+  let total = 0;
 
-  if (startExp > 0 && endExp > 0) {
-    const gained = endExp - startExp;
-    gainedCell.textContent = gained.toLocaleString();
-
-    if (rate > 0) {
-      const fee = gained / rate;
-      feeCell.textContent = Math.ceil(fee).toLocaleString();
-    } else {
-      feeCell.textContent = "-";
+  const feeDivs = activeBody.querySelectorAll("[id^='fee']");
+  feeDivs.forEach((el) => {
+    const raw = (el.innerText || "").replace(/,/g, "").trim();
+    const value = Number(raw);
+    if (!Number.isNaN(value) && raw !== "" && raw !== "-") {
+      total += value;
     }
-  } else {
-    gainedCell.textContent = "-";
-    feeCell.textContent = "-";
-  }
-}
+  });
 
-function updateRow(rowKey) {
-  updateRowByIds(
-    `startExp${rowKey}`,
-    `endExp${rowKey}`,
-    `rate${rowKey}`,
-    `gained${rowKey}`,
-    `fee${rowKey}`
-  );
+  earningsEl.textContent = total.toLocaleString();
 }
 
 function syncRateFromSliderById(sliderId, inputId, gainedId, feeId) {
@@ -149,11 +286,57 @@ function syncRateFromInputById(sliderId, inputId, gainedId, feeId) {
   );
 }
 
+function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId) {
+  const startExpInput = document.getElementById(startExpId);
+  const endExpInput = document.getElementById(endExpId);
+  const rateInput = document.getElementById(rateId);
+  const gainedCell = document.getElementById(gainedId);
+  const feeCell = document.getElementById(feeId);
+
+  if (!startExpInput || !endExpInput || !rateInput || !gainedCell || !feeCell) {
+    return;
+  }
+
+  const startExp = Number(startExpInput.value || 0);
+  const endExp = Number(endExpInput.value || 0);
+  const rate = Number(rateInput.value || 0);
+
+  if (startExp > 0 && endExp > 0) {
+    const gained = endExp - startExp;
+    gainedCell.textContent = gained.toLocaleString();
+
+    if (rate > 0) {
+      const fee = gained / rate;
+      feeCell.textContent = Math.ceil(fee).toLocaleString();
+    } else {
+      feeCell.textContent = "-";
+    }
+  } else {
+    gainedCell.textContent = "-";
+    feeCell.textContent = "-";
+  }
+
+  updateActiveEarnings();
+  saveData();
+}
+
+function updateRow(rowKey) {
+  updateRowByIds(
+    `startExp${rowKey}`,
+    `endExp${rowKey}`,
+    `rate${rowKey}`,
+    `gained${rowKey}`,
+    `fee${rowKey}`
+  );
+}
+
 function attachRowListeners(rowKey) {
+  const startTimeId = `startTime${rowKey}`;
   const startLevelId = `startLevel${rowKey}`;
   const startPercentId = `startPercent${rowKey}`;
   const startExpId = `startExp${rowKey}`;
 
+  const endTimeId = `endTime${rowKey}`;
   const endLevelId = `endLevel${rowKey}`;
   const endPercentId = `endPercent${rowKey}`;
   const endExpId = `endExp${rowKey}`;
@@ -163,8 +346,11 @@ function attachRowListeners(rowKey) {
   const gainedId = `gained${rowKey}`;
   const feeId = `fee${rowKey}`;
 
+  document.getElementById(startTimeId)?.addEventListener("input", saveData);
+
   document.getElementById(startLevelId)?.addEventListener("input", () => {
     maybeUpdateExactExpByIds(startLevelId, startPercentId, startExpId);
+    applyAutoRate(rowKey);
     updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
   });
 
@@ -176,6 +362,8 @@ function attachRowListeners(rowKey) {
   document.getElementById(startExpId)?.addEventListener("input", () => {
     updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
   });
+
+  document.getElementById(endTimeId)?.addEventListener("input", saveData);
 
   document.getElementById(endLevelId)?.addEventListener("input", () => {
     maybeUpdateExactExpByIds(endLevelId, endPercentId, endExpId);
@@ -209,7 +397,7 @@ function buildActiveRowHtml(rowKey) {
           <div class="character-actions">
             <button onclick="setStart('${rowKey}')">Fetch Start</button>
             <button onclick="setEnd('${rowKey}')">Fetch End</button>
-            <button onclick="completeRow('${rowKey}')">Completed</button>
+            <button onclick="completeRow('${rowKey}')">Leech Completed</button>
             <button class="remove-btn" onclick="removeRow('${rowKey}')">− Remove</button>
           </div>
         </div>
@@ -217,6 +405,10 @@ function buildActiveRowHtml(rowKey) {
 
       <td>
         <div class="exp-box">
+          <div class="exp-row">
+            <label>Time</label>
+            <input id="startTime${rowKey}" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+          </div>
           <div class="exp-row">
             <label>Level</label>
             <input id="startLevel${rowKey}" type="number">
@@ -234,6 +426,10 @@ function buildActiveRowHtml(rowKey) {
 
       <td>
         <div class="exp-box">
+          <div class="exp-row">
+            <label>Time</label>
+            <input id="endTime${rowKey}" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+          </div>
           <div class="exp-row">
             <label>Level</label>
             <input id="endLevel${rowKey}" type="number">
@@ -288,6 +484,8 @@ function addRow() {
     return;
   }
 
+  saveUndoSnapshot();
+
   const activeBody = document.getElementById("active-body");
   if (!activeBody) return;
 
@@ -295,6 +493,8 @@ function addRow() {
   activeBody.insertAdjacentHTML("beforeend", buildActiveRowHtml(rowKey));
   attachRowListeners(rowKey);
   activeRowCount += 1;
+  updateActiveEarnings();
+  saveData();
 }
 
 function removeRow(rowKey) {
@@ -306,12 +506,17 @@ function removeRow(rowKey) {
     return;
   }
 
+  saveUndoSnapshot();
+
   row.remove();
   activeRowCount -= 1;
+  updateActiveEarnings();
+  saveData();
 }
 
 async function setStart(rowKey) {
   const ignInput = document.getElementById(`ign${rowKey}`);
+  const timeInput = document.getElementById(`startTime${rowKey}`);
   const levelInput = document.getElementById(`startLevel${rowKey}`);
   const expInput = document.getElementById(`startExp${rowKey}`);
   const percentInput = document.getElementById(`startPercent${rowKey}`);
@@ -329,9 +534,12 @@ async function setStart(rowKey) {
 
   try {
     const result = await fetchExactExp(ign);
+    if (timeInput) timeInput.value = getCurrentTimestamp();
     levelInput.value = result.level;
     percentInput.value = result.percent;
     expInput.value = result.exactExp;
+
+    applyAutoRate(rowKey);
     updateRow(rowKey);
   } catch (err) {
     alert(err.message);
@@ -340,6 +548,7 @@ async function setStart(rowKey) {
 
 async function setEnd(rowKey) {
   const ignInput = document.getElementById(`ign${rowKey}`);
+  const timeInput = document.getElementById(`endTime${rowKey}`);
   const levelInput = document.getElementById(`endLevel${rowKey}`);
   const expInput = document.getElementById(`endExp${rowKey}`);
   const percentInput = document.getElementById(`endPercent${rowKey}`);
@@ -357,9 +566,11 @@ async function setEnd(rowKey) {
 
   try {
     const result = await fetchExactExp(ign);
+    if (timeInput) timeInput.value = getCurrentTimestamp();
     levelInput.value = result.level;
     percentInput.value = result.percent;
     expInput.value = result.exactExp;
+
     updateRow(rowKey);
   } catch (err) {
     alert(err.message);
@@ -420,13 +631,17 @@ function completeRow(rowKey) {
   const completedBody = document.getElementById("completed-body");
   if (!completedBody) return;
 
+  saveUndoSnapshot();
+
   completedCounter += 1;
   const key = `c${completedCounter}`;
 
   const ign = document.getElementById(`ign${rowKey}`)?.value || "";
+  const startTime = document.getElementById(`startTime${rowKey}`)?.value || "";
   const startLevel = document.getElementById(`startLevel${rowKey}`)?.value || "";
   const startPercent = document.getElementById(`startPercent${rowKey}`)?.value || "";
   const startExp = document.getElementById(`startExp${rowKey}`)?.value || "";
+  const endTime = document.getElementById(`endTime${rowKey}`)?.value || "";
   const endLevel = document.getElementById(`endLevel${rowKey}`)?.value || "";
   const endPercent = document.getElementById(`endPercent${rowKey}`)?.value || "";
   const endExp = document.getElementById(`endExp${rowKey}`)?.value || "";
@@ -445,6 +660,10 @@ function completeRow(rowKey) {
     <td>
       <div class="exp-box">
         <div class="exp-row">
+          <label>Time</label>
+          <input id="startTime${key}" type="text" value="${startTime}">
+        </div>
+        <div class="exp-row">
           <label>Level</label>
           <input id="startLevel${key}" type="number" value="${startLevel}">
         </div>
@@ -461,6 +680,10 @@ function completeRow(rowKey) {
 
     <td>
       <div class="exp-box">
+        <div class="exp-row">
+          <label>Time</label>
+          <input id="endTime${key}" type="text" value="${endTime}">
+        </div>
         <div class="exp-row">
           <label>Level</label>
           <input id="endLevel${key}" type="number" value="${endLevel}">
@@ -512,19 +735,42 @@ function completeRow(rowKey) {
   updateRowByIds(`startExp${key}`, `endExp${key}`, `rate${key}`, `gained${key}`, `fee${key}`);
 
   removeCompletedFromActive(rowKey);
+  saveData();
 }
 
 function removeCompletedFromActive(rowKey) {
   const row = document.getElementById(`row${rowKey}`);
   if (!row) return;
+
   row.remove();
   activeRowCount -= 1;
 
   if (activeRowCount === 0) {
     addRow();
   }
+
+  updateActiveEarnings();
+  saveData();
+}
+
+function clearAllSessions() {
+  localStorage.removeItem("activeSessions");
+  localStorage.removeItem("completedSessions");
+  localStorage.removeItem("activeRowCount");
+  localStorage.removeItem("nextRowId");
+  localStorage.removeItem("completedCounter");
+  location.reload();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  addRow();
+  restoreData();
+
+  const hasActiveRows = document.querySelectorAll("#active-body tr[id^='row']").length > 0;
+
+  if (!hasActiveRows) {
+    addRow();
+  } else {
+    reattachAllListeners();
+    updateActiveEarnings();
+  }
 });
