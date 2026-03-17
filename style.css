@@ -6,8 +6,19 @@ body {
   margin: 0;
 }
 
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
 h1 {
-  margin-bottom: 20px;
+  margin: 0 0 20px 0;
+}
+
+.undo-btn {
+  margin-right: 0;
 }
 
 h2.section-title {
@@ -17,6 +28,20 @@ h2.section-title {
 
 h2.completed-title {
   margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+.earnings-box {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #111;
+  border: 1px solid #333;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-toolbar {
   margin-bottom: 12px;
 }
 
@@ -83,9 +108,14 @@ button:hover {
   width: 60px;
   font-size: 13px;
   color: #bbb;
+  flex-shrink: 0;
 }
 
 .exp-row input {
+  flex: 1;
+}
+
+.exp-row input[type="text"] {
   flex: 1;
 }
 
@@ -98,7 +128,7 @@ button:hover {
 
 .start-header,
 .end-header {
-  min-width: 260px;
+  min-width: 320px;
 }
 
 .calc-all-btn {
@@ -149,10 +179,6 @@ button:hover {
 
 .character-actions button {
   margin-right: 0;
-}
-
-.table-toolbar {
-  margin-bottom: 12px;
 }
 
 .row-btn {
