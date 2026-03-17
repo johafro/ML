@@ -773,6 +773,27 @@ function copyCompletedFee(feeId) {
   navigator.clipboard.writeText(feeText.replace(/,/g, ""));
 }
 
+function markPaymentReceived(completedKey) {
+  const statusText = document.getElementById(`statusText${completedKey}`);
+  const paymentBtn = document.getElementById(`paymentBtn${completedKey}`);
+
+  if (!statusText) return;
+  if (statusText.textContent === "Payment Received") return;
+
+  captureUndoState();
+
+  statusText.textContent = "Payment Received";
+  statusText.classList.remove("status-pending");
+  statusText.classList.add("status-paid");
+
+  if (paymentBtn) {
+    paymentBtn.disabled = true;
+    paymentBtn.textContent = "Paid";
+  }
+
+  saveData();
+}
+
 function completeRow(rowKey) {
   const completedBody = document.getElementById("completed-body");
   if (!completedBody) return;
