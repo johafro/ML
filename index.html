@@ -2,19 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Maple Leech Fee Tracker</title>
+  <title>Lordjojo/Johafro's Leech Calculator</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="top-bar">
-    <h1>Maple Leech Fee Tracker</h1>
+    <div class="title-with-icons">
+      <img src="lordjojo.png" class="title-icon">
+      <h1>Lordjojo/Johafro's Leech Calculator</h1>
+      <img src="johafro.png" class="title-icon">
+    </div>
+
     <button class="undo-btn" onclick="undoLastAction()">Undo</button>
   </div>
 
   <h2 class="section-title">Active Sessions</h2>
 
   <div class="earnings-box">
+    <img id="meso-icon" src="Meso Coin.png" class="meso-icon">
     <span>Active Session Earnings:</span>
     <strong id="active-earnings">0</strong>
   </div>
@@ -62,6 +68,7 @@
         <th>Time Elapsed / EXP Gained</th>
         <th>Rate (EXP / meso)</th>
         <th>Fee (mesos)</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody id="completed-body"></tbody>
