@@ -42,7 +42,12 @@ h2.completed-title {
 }
 
 .table-toolbar {
-  margin-bottom: 12px;
+  margin-top: 12px;
+}
+
+.below-table-toolbar {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .exp-table {
@@ -117,6 +122,24 @@ button:hover {
 
 .exp-row input[type="text"] {
   flex: 1;
+}
+
+.time-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.time-input-wrap input {
+  flex: 1;
+}
+
+.now-btn {
+  padding: 5px 8px;
+  font-size: 12px;
+  margin-right: 0;
+  white-space: nowrap;
 }
 
 .header-wrap {
