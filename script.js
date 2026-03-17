@@ -19,6 +19,10 @@ function saveUndoSnapshot() {
   };
 }
 
+function captureUndoState() {
+  saveUndoSnapshot();
+}
+
 function undoLastAction() {
   if (!lastUndoSnapshot) {
     alert("Nothing to undo.");
@@ -117,6 +121,25 @@ function getCurrentTimestamp() {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+function parseTimestamp(value) {
+  if (!value) return null;
+  const normalized = String(value).trim().replace(" ", "T");
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
+}
+
+function formatDuration(ms) {
+  if (!Number.isFinite(ms) || ms < 0) return "-";
+
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${hours}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
+}
+
 async function fetchExactExp(name) {
   const response = await fetch(`/api/character?name=${encodeURIComponent(name)}`);
   const text = await response.text();
@@ -135,8 +158,21 @@ async function fetchExactExp(name) {
     throw new Error(data.details || data.error || "Character not found");
   }
 
+  if (typeof data.level === "undefined" || typeof data.exp === "undefined") {
+    throw new Error("Character data is missing level or EXP.");
+  }
+
   const level = Number(data.level);
   const percent = parseFloat(String(data.exp).replace("%", "").trim());
+
+  if (!Number.isFinite(level)) {
+    throw new Error(`Invalid level returned: ${JSON.stringify(data.level)}`);
+  }
+
+  if (!Number.isFinite(percent)) {
+    throw new Error(`Invalid EXP % returned: ${JSON.stringify(data.exp)}`);
+  }
+
   const row = expTable[level];
 
   if (!row) {
@@ -253,7 +289,9 @@ function syncRateFromSliderById(sliderId, inputId, gainedId, feeId) {
     inputId.replace("rate", "endExp"),
     inputId,
     gainedId,
-    feeId
+    feeId,
+    inputId.replace("rate", "startTime"),
+    inputId.replace("rate", "endTime")
   );
 }
 
@@ -269,7 +307,9 @@ function syncRateFromInputById(sliderId, inputId, gainedId, feeId) {
       inputId.replace("rate", "endExp"),
       inputId,
       gainedId,
-      feeId
+      feeId,
+      inputId.replace("rate", "startTime"),
+      inputId.replace("rate", "endTime")
     );
     return;
   }
@@ -282,16 +322,20 @@ function syncRateFromInputById(sliderId, inputId, gainedId, feeId) {
     inputId.replace("rate", "endExp"),
     inputId,
     gainedId,
-    feeId
+    feeId,
+    inputId.replace("rate", "startTime"),
+    inputId.replace("rate", "endTime")
   );
 }
 
-function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId) {
+function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId) {
   const startExpInput = document.getElementById(startExpId);
   const endExpInput = document.getElementById(endExpId);
   const rateInput = document.getElementById(rateId);
   const gainedCell = document.getElementById(gainedId);
   const feeCell = document.getElementById(feeId);
+  const startTimeInput = document.getElementById(startTimeId);
+  const endTimeInput = document.getElementById(endTimeId);
 
   if (!startExpInput || !endExpInput || !rateInput || !gainedCell || !feeCell) {
     return;
@@ -301,9 +345,26 @@ function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId) {
   const endExp = Number(endExpInput.value || 0);
   const rate = Number(rateInput.value || 0);
 
+  const startDate = startTimeInput ? parseTimestamp(startTimeInput.value) : null;
+  const endDate = endTimeInput ? parseTimestamp(endTimeInput.value) : null;
+
+  let timeElapsedText = "-";
+  if (startDate && endDate) {
+    timeElapsedText = formatDuration(endDate.getTime() - startDate.getTime());
+  }
+
+  let expGainedText = "-";
+  if (startExp > 0 && endExp > 0) {
+    expGainedText = (endExp - startExp).toLocaleString();
+  }
+
+  gainedCell.innerHTML = `
+    <div>Time: ${timeElapsedText}</div>
+    <div>EXP: ${expGainedText}</div>
+  `;
+
   if (startExp > 0 && endExp > 0) {
     const gained = endExp - startExp;
-    gainedCell.textContent = gained.toLocaleString();
 
     if (rate > 0) {
       const fee = gained / rate;
@@ -312,7 +373,6 @@ function updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId) {
       feeCell.textContent = "-";
     }
   } else {
-    gainedCell.textContent = "-";
     feeCell.textContent = "-";
   }
 
@@ -326,7 +386,9 @@ function updateRow(rowKey) {
     `endExp${rowKey}`,
     `rate${rowKey}`,
     `gained${rowKey}`,
-    `fee${rowKey}`
+    `fee${rowKey}`,
+    `startTime${rowKey}`,
+    `endTime${rowKey}`
   );
 }
 
@@ -346,37 +408,41 @@ function attachRowListeners(rowKey) {
   const gainedId = `gained${rowKey}`;
   const feeId = `fee${rowKey}`;
 
-  document.getElementById(startTimeId)?.addEventListener("input", saveData);
+  document.getElementById(startTimeId)?.addEventListener("input", () => {
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
+  });
 
   document.getElementById(startLevelId)?.addEventListener("input", () => {
     maybeUpdateExactExpByIds(startLevelId, startPercentId, startExpId);
     applyAutoRate(rowKey);
-    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
   });
 
   document.getElementById(startPercentId)?.addEventListener("input", () => {
     maybeUpdateExactExpByIds(startLevelId, startPercentId, startExpId);
-    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
   });
 
   document.getElementById(startExpId)?.addEventListener("input", () => {
-    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
   });
 
-  document.getElementById(endTimeId)?.addEventListener("input", saveData);
+  document.getElementById(endTimeId)?.addEventListener("input", () => {
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
+  });
 
   document.getElementById(endLevelId)?.addEventListener("input", () => {
     maybeUpdateExactExpByIds(endLevelId, endPercentId, endExpId);
-    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
   });
 
   document.getElementById(endPercentId)?.addEventListener("input", () => {
     maybeUpdateExactExpByIds(endLevelId, endPercentId, endExpId);
-    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
   });
 
   document.getElementById(endExpId)?.addEventListener("input", () => {
-    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId);
+    updateRowByIds(startExpId, endExpId, rateId, gainedId, feeId, startTimeId, endTimeId);
   });
 
   document.getElementById(rateId)?.addEventListener("input", () => {
@@ -445,7 +511,10 @@ function buildActiveRowHtml(rowKey) {
         </div>
       </td>
 
-      <td id="gained${rowKey}">-</td>
+      <td id="gained${rowKey}">
+        <div>Time: -</div>
+        <div>EXP: -</div>
+      </td>
 
       <td>
         <div class="rate-box">
@@ -484,7 +553,7 @@ function addRow() {
     return;
   }
 
-  saveUndoSnapshot();
+  captureUndoState();
 
   const activeBody = document.getElementById("active-body");
   if (!activeBody) return;
@@ -506,7 +575,7 @@ function removeRow(rowKey) {
     return;
   }
 
-  saveUndoSnapshot();
+  captureUndoState();
 
   row.remove();
   activeRowCount -= 1;
@@ -531,6 +600,8 @@ async function setStart(rowKey) {
     alert("Enter IGN first");
     return;
   }
+
+  captureUndoState();
 
   try {
     const result = await fetchExactExp(ign);
@@ -564,6 +635,8 @@ async function setEnd(rowKey) {
     return;
   }
 
+  captureUndoState();
+
   try {
     const result = await fetchExactExp(ign);
     if (timeInput) timeInput.value = getCurrentTimestamp();
@@ -578,6 +651,8 @@ async function setEnd(rowKey) {
 }
 
 async function fetchStartAll() {
+  captureUndoState();
+
   const rows = document.querySelectorAll("#active-body tr[id^='row']");
   for (const row of rows) {
     const rowKey = row.id.replace("row", "");
@@ -590,6 +665,8 @@ async function fetchStartAll() {
 }
 
 async function fetchEndAll() {
+  captureUndoState();
+
   const rows = document.querySelectorAll("#active-body tr[id^='row']");
   for (const row of rows) {
     const rowKey = row.id.replace("row", "");
@@ -631,7 +708,7 @@ function completeRow(rowKey) {
   const completedBody = document.getElementById("completed-body");
   if (!completedBody) return;
 
-  saveUndoSnapshot();
+  captureUndoState();
 
   completedCounter += 1;
   const key = `c${completedCounter}`;
@@ -647,7 +724,11 @@ function completeRow(rowKey) {
   const endExp = document.getElementById(`endExp${rowKey}`)?.value || "";
   const rate = document.getElementById(`rate${rowKey}`)?.value || "0.1";
   const feeText = document.getElementById(`fee${rowKey}`)?.innerText || "-";
-  const gainedText = document.getElementById(`gained${rowKey}`)?.innerText || "-";
+
+  const gainedHtml = document.getElementById(`gained${rowKey}`)?.innerHTML || `
+    <div>Time: -</div>
+    <div>EXP: -</div>
+  `;
 
   const tr = document.createElement("tr");
   tr.innerHTML = `
@@ -699,7 +780,7 @@ function completeRow(rowKey) {
       </div>
     </td>
 
-    <td id="gained${key}">${gainedText}</td>
+    <td id="gained${key}">${gainedHtml}</td>
 
     <td>
       <div class="rate-box">
@@ -732,7 +813,15 @@ function completeRow(rowKey) {
 
   completedBody.appendChild(tr);
   attachRowListeners(key);
-  updateRowByIds(`startExp${key}`, `endExp${key}`, `rate${key}`, `gained${key}`, `fee${key}`);
+  updateRowByIds(
+    `startExp${key}`,
+    `endExp${key}`,
+    `rate${key}`,
+    `gained${key}`,
+    `fee${key}`,
+    `startTime${key}`,
+    `endTime${key}`
+  );
 
   removeCompletedFromActive(rowKey);
   saveData();
@@ -764,6 +853,17 @@ function clearAllSessions() {
 
 document.addEventListener("DOMContentLoaded", () => {
   restoreData();
+
+  const activeHeader = document.querySelectorAll(".exp-table thead tr")[0];
+  const completedHeader = document.querySelectorAll(".exp-table thead tr")[1];
+
+  if (activeHeader?.children[3]) {
+    activeHeader.children[3].textContent = "Time Elapsed / EXP Gained";
+  }
+
+  if (completedHeader?.children[3]) {
+    completedHeader.children[3].textContent = "Time Elapsed / EXP Gained";
+  }
 
   const hasActiveRows = document.querySelectorAll("#active-body tr[id^='row']").length > 0;
 
