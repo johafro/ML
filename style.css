@@ -1,280 +1,54 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #0d0d0d;
-  color: white;
-  padding: 30px;
-  margin: 0;
+  background:#0d0d0d;
+  color:white;
+  font-family:Arial;
+  padding:20px;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-bottom:12px;
 }
 
-h1 {
-  margin: 0 0 20px 0;
+th,td{
+  border:1px solid #333;
+  padding:8px;
 }
 
-h2.section-title {
-  margin-top: 10px;
-  margin-bottom: 12px;
+input{
+  width:100%;
+  background:#1a1a1a;
+  color:white;
+  border:none;
+  padding:5px;
 }
 
-h2.completed-title {
-  margin-top: 32px;
-  margin-bottom: 12px;
+button{
+  margin:3px;
+  padding:5px 8px;
 }
 
-.earnings-box {
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  background: #111;
-  border: 1px solid #333;
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
+.earnings-box{
+  margin-bottom:10px;
 }
 
-.table-toolbar {
-  margin-top: 12px;
+.filter-bar{
+  margin-bottom:10px;
 }
 
-.below-table-toolbar {
-  display: flex;
-  justify-content: flex-start;
+.status-pending{
+  color:orange;
 }
 
-.exp-table {
-  width: 100%;
-  border-collapse: collapse;
+.status-paid{
+  color:lime;
 }
 
-.exp-table th,
-.exp-table td {
-  border: 1px solid #333;
-  padding: 10px;
-  vertical-align: top;
+.completed-hidden{
+  display:none;
 }
 
-.exp-table th {
-  background: #1a1a1a;
-  text-align: left;
-}
-
-.exp-table td {
-  background: #111;
-}
-
-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 6px;
-  background: #1b1b1b;
-  border: none;
-  color: white;
-}
-
-input[disabled] {
-  opacity: 0.8;
-}
-
-button {
-  padding: 6px 10px;
-  margin-right: 6px;
-  border: none;
-  background: white;
-  color: black;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #ddd;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.exp-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.exp-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.exp-row label {
-  width: 60px;
-  font-size: 13px;
-  color: #bbb;
-  flex-shrink: 0;
-}
-
-.exp-row input {
-  flex: 1;
-}
-
-.exp-row input[type="text"] {
-  flex: 1;
-}
-
-.time-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-}
-
-.time-input-wrap input {
-  flex: 1;
-}
-
-.now-btn {
-  padding: 5px 8px;
-  font-size: 12px;
-  margin-right: 0;
-  white-space: nowrap;
-}
-
-.header-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.start-header,
-.end-header {
-  min-width: 320px;
-}
-
-.calc-all-btn {
-  padding: 4px 8px;
-  font-size: 12px;
-  margin-right: 0;
-}
-
-.rate-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.rate-box input[type="range"] {
-  width: 100%;
-}
-
-.rate-box input[type="number"] {
-  width: 100%;
-}
-
-.fee-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.copy-btn {
-  font-size: 11px;
-  padding: 3px 6px;
-  cursor: pointer;
-  margin-right: 0;
-}
-
-.character-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.character-actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.character-actions button {
-  margin-right: 0;
-}
-
-.row-btn {
-  margin-right: 0;
-}
-
-.remove-btn {
-  background: #444;
-  color: white;
-}
-
-.remove-btn:hover {
-  background: #666;
-}
-
-.status-pending {
-  color: #ffb347;
-  font-weight: bold;
-}
-
-.status-paid {
-  color: #4caf50;
-  font-weight: bold;
-}
-
-.completed-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.completed-filter-bar {
-  display: flex;
-  align-items: end;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.completed-filter-bar label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-  color: #bbb;
-}
-
-.completed-filter-bar input {
-  width: 180px;
-}
-
-.filter-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.filter-input-wrap input {
-  width: 180px;
-}
-
-.completed-summary {
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  background: #111;
-  border: 1px solid #333;
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-
-.completed-hidden {
-  display: none;
+.character-box button{
+  margin-top:6px;
 }
