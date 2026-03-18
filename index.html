@@ -1,88 +1,279 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Lordjojo/Johafro MapleLegends Leech Tracker</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+body {
+  font-family: Arial, sans-serif;
+  background: #0d0d0d;
+  color: white;
+  padding: 30px;
+  margin: 0;
+}
 
-  <div class="top-bar">
-    <h1>Lordjojo/Johafro MapleLegends Leech Tracker</h1>
-  </div>
+/* Top Bar */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  <h2 class="section-title">Active Sessions</h2>
+h1 {
+  margin: 0 0 20px 0;
+}
 
-  <div class="earnings-box">
-    <span>Active Session Earnings:</span>
-    <strong id="active-earnings">0</strong>
-  </div>
+/* Section Titles */
+.section-title {
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
 
-  <table class="exp-table">
-    <thead>
-      <tr>
-        <th>Character</th>
-        <th>Start EXP <button onclick="fetchStartAll()">Fetch All Start</button></th>
-        <th>Current / End EXP <button onclick="fetchEndAll()">Fetch All End</button></th>
-        <th>Time Elapsed / EXP Gained / EXP-Hr</th>
-        <th>Rate (EXP / meso)</th>
-        <th>Fee (mesos)</th>
-      </tr>
-    </thead>
-    <tbody id="active-body"></tbody>
-  </table>
+.completed-title {
+  margin-top: 32px;
+}
 
-  <div class="table-toolbar below-table-toolbar">
-    <button class="row-btn" onclick="addRow()">+ Add Row</button>
-  </div>
+/* Earnings Box */
+.earnings-box {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #111;
+  border: 1px solid #333;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
 
-  <div class="completed-header-row">
-    <h2 class="section-title completed-title">Completed Sessions</h2>
+/* Tables */
+.exp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-    <div class="completed-filter-bar">
-      <label>
-        From
-        <div class="filter-input-wrap">
-          <input id="completed-filter-start" type="datetime-local">
-          <button type="button" class="now-btn" onclick="setCompletedFilterNow('completed-filter-start')">Now</button>
-        </div>
-      </label>
+.exp-table th,
+.exp-table td {
+  border: 1px solid #333;
+  padding: 10px;
+  vertical-align: top;
+}
 
-      <label>
-        To
-        <div class="filter-input-wrap">
-          <input id="completed-filter-end" type="datetime-local">
-          <button type="button" class="now-btn" onclick="setCompletedFilterNow('completed-filter-end')">Now</button>
-        </div>
-      </label>
+.exp-table th {
+  background: #1a1a1a;
+  text-align: left;
+}
 
-      <button type="button" onclick="applyCompletedFilter()">Apply</button>
-      <button type="button" onclick="clearCompletedFilter()">Clear</button>
-    </div>
-  </div>
+.exp-table td {
+  background: #111;
+}
 
-  <div id="completed-summary" class="completed-summary">
-    <span>Total Mesos: -</span>
-    <span>Total EXP: -</span>
-    <span>Avg EXP/Hr: -</span>
-  </div>
+/* Inputs */
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
+  background: #1b1b1b;
+  border: none;
+  color: white;
+}
 
-  <table class="exp-table">
-    <thead>
-      <tr>
-        <th>Character</th>
-        <th>Start EXP</th>
-        <th>Current / End EXP</th>
-        <th>Time Elapsed / EXP Gained / EXP-Hr</th>
-        <th>Rate (EXP / meso)</th>
-        <th>Fee (mesos)</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="completed-body"></tbody>
-  </table>
+/* Buttons */
+button {
+  padding: 6px 10px;
+  margin-right: 6px;
+  border: none;
+  background: white;
+  color: black;
+  cursor: pointer;
+}
 
-  <script src="exptable.js"></script>
-  <script src="script.js"></script>
-</body>
-</html>
+button:hover {
+  background: #ddd;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Layout Boxes */
+.exp-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.exp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exp-row label {
+  width: 60px;
+  font-size: 13px;
+  color: #bbb;
+  flex-shrink: 0;
+}
+
+.exp-row input {
+  flex: 1;
+}
+
+/* Time input + Now button */
+.time-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.time-input-wrap input {
+  flex: 1;
+}
+
+.now-btn {
+  padding: 5px 8px;
+  font-size: 12px;
+  margin-right: 0;
+  white-space: nowrap;
+}
+
+/* Header buttons */
+.header-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.start-header,
+.end-header {
+  min-width: 320px;
+}
+
+.calc-all-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  margin-right: 0;
+}
+
+/* Rate */
+.rate-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rate-box input[type="range"] {
+  width: 100%;
+}
+
+.rate-box input[type="number"] {
+  width: 100%;
+}
+
+/* Fee Column */
+.fee-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.copy-btn {
+  font-size: 11px;
+  padding: 3px 6px;
+  cursor: pointer;
+  margin-right: 0;
+}
+
+/* Character Column */
+.character-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.character-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.character-actions button {
+  margin-right: 0;
+}
+
+/* Remove Button */
+.remove-btn {
+  background: #444;
+  color: white;
+}
+
+.remove-btn:hover {
+  background: #666;
+}
+
+/* Status */
+.status-pending {
+  color: #ffb347;
+  font-weight: bold;
+}
+
+.status-paid {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Completed Section */
+.completed-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.completed-filter-bar {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.completed-filter-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #bbb;
+}
+
+.completed-filter-bar input {
+  width: 210px;
+}
+
+.filter-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.completed-summary {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #111;
+  border: 1px solid #333;
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+/* Hidden rows (filtering) */
+.completed-hidden {
+  display: none;
+}
+
+/* Add Row Button */
+.table-toolbar {
+  margin-top: 12px;
+}
+
+.below-table-toolbar {
+  display: flex;
+  justify-content: flex-start;
+}
