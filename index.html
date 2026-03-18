@@ -9,6 +9,18 @@
 
   <div class="top-bar">
     <h1>Lordjojo/Johafro MapleLegends Leech Tracker</h1>
+
+    <div class="top-links">
+      <a href="https://youtu.be/PosG6u-ZKXE" target="_blank">
+        YouTube Tutorial
+      </a>
+      <a href="https://discord.gg/9FCcBjuV" target="_blank">
+        Discord Feedback
+      </a>
+      <a href="https://buymeacoffee.com/lordjojocalculator" target="_blank" class="support-link">
+        Thank you for your Support!
+      </a>
+    </div>
   </div>
 
   <h2 class="section-title">Active Sessions</h2>
@@ -22,27 +34,13 @@
     <thead>
       <tr>
         <th>Character</th>
-
-        <th class="start-header">
-          <div class="header-wrap">
-            <span>Start EXP</span>
-            <button class="calc-all-btn" onclick="fetchStartAll()">Fetch All Start</button>
-          </div>
-        </th>
-
-        <th class="end-header">
-          <div class="header-wrap">
-            <span>Current / End EXP</span>
-            <button class="calc-all-btn" onclick="fetchEndAll()">Fetch All End</button>
-          </div>
-        </th>
-
+        <th>Start EXP <button onclick="fetchStartAll()">Fetch All Start</button></th>
+        <th>Current / End EXP <button onclick="fetchEndAll()">Fetch All End</button></th>
         <th>Time Elapsed / EXP Gained / EXP-Hr</th>
         <th>Rate (EXP / meso)</th>
         <th>Fee (mesos)</th>
       </tr>
     </thead>
-
     <tbody id="active-body"></tbody>
   </table>
 
