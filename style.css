@@ -38,7 +38,15 @@ h1 {
   align-items: center;
 }
 
-/* Tables */
+/* ✅ SAFE ROUNDED TABLE WRAPPER */
+.table-wrapper {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #333;
+  margin-bottom: 10px;
+}
+
+/* Tables (STABLE) */
 .exp-table {
   width: 100%;
   border-collapse: collapse;
@@ -89,7 +97,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Layout Boxes */
+/* Layout */
 .exp-box {
   display: flex;
   flex-direction: column;
@@ -106,49 +114,22 @@ button:disabled {
   width: 60px;
   font-size: 13px;
   color: #bbb;
-  flex-shrink: 0;
 }
 
 .exp-row input {
   flex: 1;
 }
 
-/* Time input + Now button */
+/* Time + Now */
 .time-input-wrap {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1;
-}
-
-.time-input-wrap input {
-  flex: 1;
 }
 
 .now-btn {
   padding: 5px 8px;
   font-size: 12px;
-  margin-right: 0;
-  white-space: nowrap;
-}
-
-/* Header buttons */
-.header-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.start-header,
-.end-header {
-  min-width: 320px;
-}
-
-.calc-all-btn {
-  padding: 4px 8px;
-  font-size: 12px;
-  margin-right: 0;
 }
 
 /* Rate */
@@ -158,15 +139,7 @@ button:disabled {
   gap: 6px;
 }
 
-.rate-box input[type="range"] {
-  width: 100%;
-}
-
-.rate-box input[type="number"] {
-  width: 100%;
-}
-
-/* Fee Column */
+/* Fee */
 .fee-box {
   display: flex;
   flex-direction: column;
@@ -177,11 +150,9 @@ button:disabled {
 .copy-btn {
   font-size: 11px;
   padding: 3px 6px;
-  cursor: pointer;
-  margin-right: 0;
 }
 
-/* Character Column */
+/* Character */
 .character-box {
   display: flex;
   flex-direction: column;
@@ -194,11 +165,7 @@ button:disabled {
   flex-wrap: wrap;
 }
 
-.character-actions button {
-  margin-right: 0;
-}
-
-/* Remove Button */
+/* Remove */
 .remove-btn {
   background: #444;
   color: white;
@@ -210,70 +177,46 @@ button:disabled {
 
 /* Status */
 .status-pending {
-  color: #ffb347;
+  color: orange;
   font-weight: bold;
 }
 
 .status-paid {
-  color: #4caf50;
+  color: lime;
   font-weight: bold;
 }
 
-/* Completed Section */
+/* Completed */
 .completed-header-row {
   display: flex;
   justify-content: space-between;
   align-items: end;
-  gap: 16px;
   flex-wrap: wrap;
+  gap: 16px;
 }
 
 .completed-filter-bar {
   display: flex;
-  align-items: end;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.completed-filter-bar label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-  color: #bbb;
-}
-
-.completed-filter-bar input {
-  width: 210px;
-}
-
-.filter-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
 .completed-summary {
   margin-bottom: 12px;
-  padding: 10px 12px;
+  padding: 10px;
   background: #111;
   border: 1px solid #333;
   display: flex;
-  gap: 18px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
-/* Hidden rows (filtering) */
+/* Hidden rows */
 .completed-hidden {
   display: none;
 }
 
-/* Add Row Button */
+/* Add row */
 .table-toolbar {
   margin-top: 12px;
-}
-
-.below-table-toolbar {
-  display: flex;
-  justify-content: flex-start;
 }
