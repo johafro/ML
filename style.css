@@ -146,3 +146,7 @@ button:hover {
 .exp-table tr:last-child td:last-child {
   border-bottom-right-radius: 10px;
 }
+
+.exp-table {
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
