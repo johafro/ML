@@ -17,10 +17,6 @@ h1 {
   margin: 0 0 20px 0;
 }
 
-.undo-btn {
-  margin-right: 0;
-}
-
 h2.section-title {
   margin-top: 10px;
   margin-bottom: 12px;
@@ -95,6 +91,11 @@ button {
 
 button:hover {
   background: #ddd;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .exp-box {
@@ -225,4 +226,55 @@ button:hover {
 .status-paid {
   color: #4caf50;
   font-weight: bold;
+}
+
+.completed-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.completed-filter-bar {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.completed-filter-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #bbb;
+}
+
+.completed-filter-bar input {
+  width: 180px;
+}
+
+.filter-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-input-wrap input {
+  width: 180px;
+}
+
+.completed-summary {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #111;
+  border: 1px solid #333;
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.completed-hidden {
+  display: none;
 }
