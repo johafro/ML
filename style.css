@@ -70,7 +70,10 @@ h2.completed-title {
 
 .exp-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;   /* IMPORTANT */
+  border-spacing: 0;           /* keeps layout tight */
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .exp-table th,
@@ -126,4 +129,20 @@ button:hover {
   padding: 10px;
   background: #111;
   border: 1px solid #333;
+}
+
+.exp-table th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.exp-table th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.exp-table tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.exp-table tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
 }
