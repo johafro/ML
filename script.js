@@ -706,7 +706,6 @@ function buildActiveRowHtml(rowKey) {
           <div class="character-actions">
             <button onclick="setStart('${rowKey}')">Fetch Start</button>
             <button onclick="setEnd('${rowKey}')">Fetch End</button>
-            <button onclick="completeRow('${rowKey}')">Leech Completed</button>
             <button class="remove-btn" onclick="removeRow('${rowKey}')">− Remove</button>
           </div>
         </div>
@@ -779,6 +778,7 @@ function buildActiveRowHtml(rowKey) {
         <div class="fee-box">
           <div id="fee${rowKey}">-</div>
           <button onclick="copyFee('${rowKey}')" class="copy-btn">Copy</button>
+          <button onclick="completeRow('${rowKey}')" class="copy-btn">Leech Completed</button>
         </div>
       </td>
     </tr>
