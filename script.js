@@ -811,12 +811,12 @@ function markPaymentReceived(completedKey) {
   statusText.classList.add("status-paid");
 
   if (paymentBtn) {
-    paymentBtn.disabled = true;
-    paymentBtn.textContent = "Paid";
+    paymentBtn.style.display = "none";
   }
 
   if (notPaidBtn) {
     notPaidBtn.disabled = false;
+    notPaidBtn.style.display = "inline-block";
   }
 
   saveData();
@@ -839,10 +839,12 @@ function markPaymentPending(completedKey) {
   if (paymentBtn) {
     paymentBtn.disabled = false;
     paymentBtn.textContent = "Payment Received";
+    paymentBtn.style.display = "inline-block";
   }
 
   if (notPaidBtn) {
     notPaidBtn.disabled = true;
+    notPaidBtn.style.display = "none";
   }
 
   saveData();
@@ -964,6 +966,7 @@ function completeRow(rowKey) {
           onclick="markPaymentPending('${key}')"
           class="copy-btn"
           disabled
+          style="display: none;"
         >
           Not Paid
         </button>
