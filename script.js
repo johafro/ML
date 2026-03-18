@@ -44,6 +44,7 @@ function undoLastAction() {
   refreshAllRows();
   updateActiveEarnings();
   saveData();
+  applyCompletedFilter();
 
   lastUndoSnapshot = null;
 }
@@ -113,6 +114,141 @@ function formatDuration(ms) {
   const seconds = totalSeconds % 60;
 
   return `${hours}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
+}
+
+function formatNumberOrDash(value) {
+  if (!Number.isFinite(value)) return "-";
+  return Math.round(value).toLocaleString();
+}
+
+function getCompletedRowFilterDate(row) {
+  const ignInput = row.querySelector("input[id^='ign']");
+  if (!ignInput) return null;
+
+  const key = ignInput.id.replace("ign", "");
+  const endTimeInput = document.getElementById(`endTime${key}`);
+  const startTimeInput = document.getElementById(`startTime${key}`);
+
+  const endDate = endTimeInput ? parseTimestamp(endTimeInput.value) : null;
+  const startDate = startTimeInput ? parseTimestamp(startTimeInput.value) : null;
+
+  return endDate || startDate || null;
+}
+
+function getCompletedRowMetrics(row) {
+  const ignInput = row.querySelector("input[id^='ign']");
+  if (!ignInput) {
+    return { fee: 0, gained: 0, durationMs: 0 };
+  }
+
+  const key = ignInput.id.replace("ign", "");
+
+  const feeEl = document.getElementById(`fee${key}`);
+  const fee = feeEl
+    ? Number((feeEl.innerText || "").replace(/,/g, "").trim()) || 0
+    : 0;
+
+  const startExpEl = document.getElementById(`startExp${key}`);
+  const endExpEl = document.getElementById(`endExp${key}`);
+  const startTimeEl = document.getElementById(`startTime${key}`);
+  const endTimeEl = document.getElementById(`endTime${key}`);
+
+  const startExp = startExpEl ? Number(startExpEl.value || 0) : 0;
+  const endExp = endExpEl ? Number(endExpEl.value || 0) : 0;
+  const gained = endExp >= startExp ? (endExp - startExp) : 0;
+
+  const startDate = startTimeEl ? parseTimestamp(startTimeEl.value) : null;
+  const endDate = endTimeEl ? parseTimestamp(endTimeEl.value) : null;
+  const durationMs =
+    startDate && endDate && endDate.getTime() > startDate.getTime()
+      ? endDate.getTime() - startDate.getTime()
+      : 0;
+
+  return { fee, gained, durationMs };
+}
+
+function updateCompletedSummary(visibleRows) {
+  const summary = document.getElementById("completed-summary");
+  if (!summary) return;
+
+  let totalMesos = 0;
+  let totalExp = 0;
+  let totalDurationMs = 0;
+
+  visibleRows.forEach((row) => {
+    const metrics = getCompletedRowMetrics(row);
+    totalMesos += metrics.fee;
+    totalExp += metrics.gained;
+    totalDurationMs += metrics.durationMs;
+  });
+
+  let avgExpHr = "-";
+  if (totalExp > 0 && totalDurationMs > 0) {
+    avgExpHr = `${formatNumberOrDash(totalExp * (3600000 / totalDurationMs))}/hr`;
+  }
+
+  summary.innerHTML = `
+    <span>Total Mesos: ${totalMesos.toLocaleString()}</span>
+    <span>Total EXP: ${totalExp.toLocaleString()}</span>
+    <span>Avg EXP/Hr: ${avgExpHr}</span>
+  `;
+}
+
+function applyCompletedFilter() {
+  const startValue = document.getElementById("completed-filter-start")?.value || "";
+  const endValue = document.getElementById("completed-filter-end")?.value || "";
+
+  const startDate = parseTimestamp(startValue);
+  const endDate = parseTimestamp(endValue);
+
+  const rows = Array.from(document.querySelectorAll("#completed-body tr"));
+  const visibleRows = [];
+
+  rows.forEach((row) => {
+    const rowDate = getCompletedRowFilterDate(row);
+
+    let visible = true;
+
+    if (startValue && !startDate) visible = false;
+    if (endValue && !endDate) visible = false;
+
+    if (visible && startDate && (!rowDate || rowDate.getTime() < startDate.getTime())) {
+      visible = false;
+    }
+
+    if (visible && endDate && (!rowDate || rowDate.getTime() > endDate.getTime())) {
+      visible = false;
+    }
+
+    row.classList.toggle("completed-hidden", !visible);
+
+    if (visible) {
+      visibleRows.push(row);
+    }
+  });
+
+  updateCompletedSummary(visibleRows);
+}
+
+function clearCompletedFilter() {
+  const startInput = document.getElementById("completed-filter-start");
+  const endInput = document.getElementById("completed-filter-end");
+
+  if (startInput) startInput.value = "";
+  if (endInput) endInput.value = "";
+
+  const rows = Array.from(document.querySelectorAll("#completed-body tr"));
+  rows.forEach((row) => row.classList.remove("completed-hidden"));
+
+  updateCompletedSummary(rows);
+}
+
+function setCompletedFilterNow(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  input.value = getCurrentTimestamp();
+  applyCompletedFilter();
 }
 
 function setTimestampNow(timeInputId) {
@@ -820,6 +956,7 @@ function markPaymentReceived(completedKey) {
   }
 
   saveData();
+  applyCompletedFilter();
 }
 
 function markPaymentPending(completedKey) {
@@ -848,6 +985,7 @@ function markPaymentPending(completedKey) {
   }
 
   saveData();
+  applyCompletedFilter();
 }
 
 function completeRow(rowKey) {
@@ -974,7 +1112,7 @@ function completeRow(rowKey) {
     </td>
   `;
 
-  completedBody.appendChild(tr);
+  completedBody.prepend(tr);
   attachRowListeners(key);
   updateRowByIds(
     `startExp${key}`,
@@ -988,6 +1126,7 @@ function completeRow(rowKey) {
 
   removeCompletedFromActive(rowKey);
   saveData();
+  applyCompletedFilter();
 }
 
 function removeCompletedFromActive(rowKey) {
@@ -1045,9 +1184,14 @@ document.addEventListener("DOMContentLoaded", () => {
       activeRowCount = 1;
       saveData();
     }
+    clearCompletedFilter();
   } else {
     reattachAllListeners();
     refreshAllRows();
     updateActiveEarnings();
+    clearCompletedFilter();
   }
+
+  document.getElementById("completed-filter-start")?.addEventListener("input", applyCompletedFilter);
+  document.getElementById("completed-filter-end")?.addEventListener("input", applyCompletedFilter);
 });
