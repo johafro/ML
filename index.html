@@ -50,7 +50,36 @@
     <button class="row-btn" onclick="addRow()">+ Add Row</button>
   </div>
 
-  <h2 class="section-title completed-title">Completed Sessions</h2>
+  <div class="completed-header-row">
+    <h2 class="section-title completed-title">Completed Sessions</h2>
+
+    <div class="completed-filter-bar">
+      <label>
+        From
+        <div class="filter-input-wrap">
+          <input id="completed-filter-start" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+          <button type="button" class="now-btn" onclick="setCompletedFilterNow('completed-filter-start')">Now</button>
+        </div>
+      </label>
+
+      <label>
+        To
+        <div class="filter-input-wrap">
+          <input id="completed-filter-end" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+          <button type="button" class="now-btn" onclick="setCompletedFilterNow('completed-filter-end')">Now</button>
+        </div>
+      </label>
+
+      <button type="button" onclick="applyCompletedFilter()">Apply</button>
+      <button type="button" onclick="clearCompletedFilter()">Clear</button>
+    </div>
+  </div>
+
+  <div id="completed-summary" class="completed-summary">
+    <span>Total Mesos: -</span>
+    <span>Total EXP: -</span>
+    <span>Avg EXP/Hr: -</span>
+  </div>
 
   <table class="exp-table">
     <thead>
