@@ -9,78 +9,22 @@ body {
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* important */
-  gap: 12px;
+  align-items: center;
 }
 
 h1 {
   margin: 0 0 20px 0;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start; /* important */
-  gap: 12px;
-}
-
-.top-links a {
-  color: #4da6ff;
-  text-decoration: none;
-}
-
-.top-links a:hover {
-  text-decoration: underline;
-}
-
-/* ✨ Glow ONLY for support link */
-.support-link {
-  color: #ffd166;
-  text-shadow: 0 0 6px rgba(255, 209, 102, 0.7);
-}
-
-h2.section-title {
-  margin-top: 10px;
-  margin-bottom: 12px;
-}
-
-h2.completed-title {
-  margin-top: 32px;
-  margin-bottom: 12px;
-}
-
-.earnings-box {
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  background: #111;
-  border: 1px solid #333;
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.table-toolbar {
-  margin-top: 12px;
-}
-
-.below-table-toolbar {
-  display: flex;
-  justify-content: flex-start;
-}
-
 .exp-table {
   width: 100%;
-  border-collapse: separate;   /* IMPORTANT */
-  border-spacing: 0;           /* keeps layout tight */
-  border-radius: 10px;
-  overflow: hidden;
+  border-collapse: collapse;
 }
 
 .exp-table th,
 .exp-table td {
   border: 1px solid #333;
   padding: 10px;
-  vertical-align: top;
 }
 
 .exp-table th {
@@ -129,24 +73,4 @@ button:hover {
   padding: 10px;
   background: #111;
   border: 1px solid #333;
-}
-
-.exp-table th:first-child {
-  border-top-left-radius: 10px;
-}
-
-.exp-table th:last-child {
-  border-top-right-radius: 10px;
-}
-
-.exp-table tr:last-child td:first-child {
-  border-bottom-left-radius: 10px;
-}
-
-.exp-table tr:last-child td:last-child {
-  border-bottom-right-radius: 10px;
-}
-
-.exp-table {
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
