@@ -274,3 +274,8 @@ button:disabled {
 .completed-hidden {
   display: none;
 }
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
