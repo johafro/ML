@@ -92,9 +92,8 @@ function getCurrentTimestamp() {
   const day = String(now.getDate()).padStart(2, "0");
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
 
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function parseTimestamp(value) {
@@ -103,6 +102,19 @@ function parseTimestamp(value) {
   const date = new Date(normalized);
   if (Number.isNaN(date.getTime())) return null;
   return date;
+}
+
+function toDateTimeLocalValue(value) {
+  const date = parseTimestamp(value);
+  if (!date) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function formatDuration(ms) {
@@ -635,7 +647,7 @@ function reattachAllListeners() {
       attachRowListeners(key);
     }
 
-    const feeBtn = row.querySelector("button[onclick*='copyCompletedFee']");
+    const feeBtn = row.querySelector("button[id^='copyCompletedFeeBtn']");
     const feeDiv = row.querySelector("div[id^='fee']");
     if (feeBtn && feeDiv) {
       feeBtn.onclick = () => copyCompletedFee(feeDiv.id);
@@ -652,6 +664,12 @@ function reattachAllListeners() {
       const completedKey = notPaidBtn.id.replace("notPaidBtn", "");
       notPaidBtn.onclick = () => markPaymentPending(completedKey);
     }
+
+    const deleteBtn = row.querySelector("button[id^='deleteCompletedBtn']");
+    if (deleteBtn) {
+      const completedKey = deleteBtn.id.replace("deleteCompletedBtn", "");
+      deleteBtn.onclick = () => deleteCompletedRow(completedKey);
+    }
   });
 }
 
@@ -660,7 +678,7 @@ function buildTimeRowHtml(labelText, inputId) {
     <div class="exp-row">
       <label>${labelText}</label>
       <div class="time-input-wrap">
-        <input id="${inputId}" type="text" placeholder="YYYY-MM-DD HH:MM:SS">
+        <input id="${inputId}" type="datetime-local">
         <button type="button" class="now-btn" onclick="setTimestampNow('${inputId}')">Now</button>
       </div>
     </div>
@@ -672,7 +690,7 @@ function buildTimeRowHtmlWithValue(labelText, inputId, value) {
     <div class="exp-row">
       <label>${labelText}</label>
       <div class="time-input-wrap">
-        <input id="${inputId}" type="text" value="${value}">
+        <input id="${inputId}" type="datetime-local" value="${toDateTimeLocalValue(value)}">
         <button type="button" class="now-btn" onclick="setTimestampNow('${inputId}')">Now</button>
       </div>
     </div>
@@ -988,6 +1006,19 @@ function markPaymentPending(completedKey) {
   applyCompletedFilter();
 }
 
+function deleteCompletedRow(completedKey) {
+  const row = document.getElementById(`ign${completedKey}`)?.closest("tr");
+  if (!row) return;
+
+  const confirmed = window.confirm("Delete this completed record?");
+  if (!confirmed) return;
+
+  captureUndoState();
+  row.remove();
+  saveData();
+  applyCompletedFilter();
+}
+
 function completeRow(rowKey) {
   const completedBody = document.getElementById("completed-body");
   if (!completedBody) return;
@@ -1020,6 +1051,7 @@ function completeRow(rowKey) {
     <td>
       <div class="character-box">
         <input id="ign${key}" value="${ign}">
+        <button id="deleteCompletedBtn${key}" class="remove-btn" onclick="deleteCompletedRow('${key}')">Delete Record</button>
       </div>
     </td>
 
@@ -1085,7 +1117,7 @@ function completeRow(rowKey) {
     <td>
       <div class="fee-box">
         <div id="fee${key}">${feeText}</div>
-        <button onclick="copyCompletedFee('fee${key}')" class="copy-btn">Copy</button>
+        <button id="copyCompletedFeeBtn${key}" onclick="copyCompletedFee('fee${key}')" class="copy-btn">Copy</button>
       </div>
     </td>
 
@@ -1162,17 +1194,6 @@ function clearAllSessions() {
 document.addEventListener("DOMContentLoaded", () => {
   restoreData();
 
-  const activeHeader = document.querySelectorAll(".exp-table thead tr")[0];
-  const completedHeader = document.querySelectorAll(".exp-table thead tr")[1];
-
-  if (activeHeader?.children[3]) {
-    activeHeader.children[3].textContent = "Time Elapsed / EXP Gained";
-  }
-
-  if (completedHeader?.children[3]) {
-    completedHeader.children[3].textContent = "Time Elapsed / EXP Gained";
-  }
-
   const hasActiveRows = document.querySelectorAll("#active-body tr[id^='row']").length > 0;
 
   if (!hasActiveRows) {
@@ -1184,13 +1205,13 @@ document.addEventListener("DOMContentLoaded", () => {
       activeRowCount = 1;
       saveData();
     }
-    clearCompletedFilter();
   } else {
     reattachAllListeners();
     refreshAllRows();
     updateActiveEarnings();
-    clearCompletedFilter();
   }
+
+  clearCompletedFilter();
 
   document.getElementById("completed-filter-start")?.addEventListener("input", applyCompletedFilter);
   document.getElementById("completed-filter-end")?.addEventListener("input", applyCompletedFilter);
